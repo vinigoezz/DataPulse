@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Prints de tela salvos na pasta do Streamlit
+.streamlit/*.png
