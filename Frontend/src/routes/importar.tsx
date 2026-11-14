@@ -9,6 +9,8 @@ import { BackendNotice, PageHeader, Panel } from "@/components/layout/PageHeader
 import { formatBytes, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { isBackendConfigured } from "@/services/http";
+import { datasetsService } from "@/services/datasets.service";
+import type { Dataset } from "@/types";
 
 export const Route = createFileRoute("/importar")({
   head: () => ({
@@ -34,9 +36,11 @@ function ImportPage() {
   const [preview, setPreview] = useState<Preview | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  const [sending, setSending] = useState(false);
+  const [uploaded, setUploaded] = useState<Dataset | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const reset = () => { setStep(0); setPreview(null); setError(null); setProgress(0); if (inputRef.current) inputRef.current.value = ""; };
+  const reset = () => { setStep(0); setPreview(null); setError(null); setProgress(0); setUploaded(null); if (inputRef.current) inputRef.current.value = ""; };
 
   const handleFile = useCallback((file: File) => {
     setError(null);
@@ -67,9 +71,23 @@ function ImportPage() {
     });
   }, []);
 
-  const finish = () => {
-    setStep(3);
-    if (!isBackendConfigured()) toast.warning("Backend não conectado", { description: "O arquivo não foi enviado. A importação será concluída após a integração com a API." });
+  const finish = async () => {
+    if (!isBackendConfigured() || !preview) {
+      setStep(3);
+      toast.warning("Backend não conectado", { description: "O arquivo não foi enviado. A importação será concluída após a integração com a API." });
+      return;
+    }
+    setSending(true);
+    try {
+      const dataset = await datasetsService.upload(preview.file);
+      setUploaded(dataset);
+      setStep(3);
+      toast.success("Importação concluída", { description: `${dataset.name}: ${formatNumber(dataset.rows)} linhas.` });
+    } catch (err) {
+      toast.error("Falha na importação", { description: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -171,11 +189,25 @@ function ImportPage() {
           {step === 2 && (
             <div className="flex flex-wrap justify-end gap-2">
               <Button variant="soft" onClick={reset}><RotateCcw /> Escolher outro arquivo</Button>
-              <Button variant="brand" onClick={finish}>Concluir importação</Button>
+              <Button variant="brand" onClick={finish} disabled={sending}>{sending ? "Enviando…" : "Concluir importação"}</Button>
             </div>
           )}
 
-          {step === 3 && (
+          {step === 3 && uploaded && (
+            <Panel>
+              <div className="flex flex-col items-center gap-3 py-6 text-center">
+                <span className="grid size-12 place-items-center rounded-xl border bg-muted text-success"><Check className="size-5" /></span>
+                <p className="font-medium">Importação concluída</p>
+                <p className="max-w-md text-sm text-muted-foreground"><strong>{uploaded.name}</strong> foi processado pela API: {formatNumber(uploaded.rows)} linhas e {formatNumber(uploaded.columns)} colunas.</p>
+                <div className="mt-2 flex gap-2">
+                  <Button variant="soft" onClick={reset}>Importar outro</Button>
+                  <Button asChild variant="brand"><Link to="/datasets">Ver datasets</Link></Button>
+                </div>
+              </div>
+            </Panel>
+          )}
+
+          {step === 3 && !uploaded && (
             <Panel>
               <div className="flex flex-col items-center gap-3 py-6 text-center">
                 <span className="grid size-12 place-items-center rounded-xl border bg-muted text-warning"><ServerOff className="size-5" /></span>

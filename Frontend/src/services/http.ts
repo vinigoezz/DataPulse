@@ -17,7 +17,13 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
     headers: { Accept: "application/json", ...(init?.headers ?? {}) },
   });
-  if (!res.ok) throw new ApiError(res.status, `Erro ${res.status} ao acessar ${path}`);
+  if (!res.ok) {
+    // A API responde erros esperados como {"detail": "mensagem para o usuário"}.
+    const body = await res.json().catch(() => null);
+    const detail = typeof body?.detail === "string" ? body.detail : null;
+    throw new ApiError(res.status, detail ?? `Erro ${res.status} ao acessar ${path}`);
+  }
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 

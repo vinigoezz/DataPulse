@@ -30,7 +30,7 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Data Pulse architecture
-- Frontend only: no Lovable Cloud/backend; the future FastAPI API is reached via `src/services/` (central `http.ts`, `VITE_API_URL`), falling back to `src/mocks/` when unset — keeps UI decoupled from data source.
+- Frontend only: no Lovable Cloud/backend; the FastAPI API lives in `../backend` (see `../docs/ARQUITETURA.md`) and is reached via `src/services/` (central `http.ts`, `VITE_API_URL`), falling back to `src/mocks/` when unset — keeps UI decoupled from data source. API contracts mirror `src/types/index.ts` (`backend/app/schemas/datasets.py`); change both together.
 - Demo data is generated with a seeded PRNG (`src/mocks/rng.ts`) so numbers never change between reloads.
 - Theme is a `.dark` class on `<html>` managed by `src/lib/theme.tsx` (dark default, persisted in localStorage) — no next-themes.
 - Recharts axes must be direct children of the chart (no fragments), or they silently don't render.

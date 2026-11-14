@@ -221,3 +221,9 @@ __marimo__/
 
 # Prints de tela salvos na pasta do Streamlit
 .streamlit/*.png
+
+# Datasets importados pela API (backend)
+backend/storage/
+
+# Dependências do Frontend
+node_modules/
