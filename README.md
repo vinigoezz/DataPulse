@@ -7,30 +7,24 @@ Análise de dados a partir de planilhas CSV.
 | `Frontend/` | Landing page e aplicação web (TanStack Start + React, conectado ao Lovable) |
 | `backend/` | API FastAPI: importação, armazenamento, linhas paginadas e estatísticas |
 | `app.py` | Protótipo original em Streamlit |
-| `docs/ARQUITETURA.md` | Visão da arquitetura, contrato da API e próximos passos |
+| `docs/ARQUITETURA.md` | Arquitetura (vertical slices), hospedagem e contrato da API |
+| `docs/ROADMAP.md` | Sprints e o que falta |
+| `docs/sprints/` | Explicação, passo a passo, do que foi feito em cada sprint |
 
 ## Como rodar
 
-### API (backend)
+Requisitos: Python 3.12+, Node 20+ e [bun](https://bun.sh) (`npm install -g bun`).
 
 ```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements-dev.txt
-uvicorn app.main:app --reload          # http://localhost:8000/docs
-pytest                                 # testes
+make setup   # instala tudo (uma vez)
+make dev     # sobe API (http://localhost:8000/docs) e Frontend juntos
+make test    # roda os testes
+make lint    # confere a qualidade do código
+make         # lista todos os comandos
 ```
 
-Configuração por variáveis de ambiente — veja `backend/.env.example`.
-
-### Frontend
-
-```bash
-cd Frontend
-bun install          # ou npm install
-cp .env.example .env.local   # aponta para a API; sem ele o app usa dados de demonstração
-bun run dev
-```
+Configuração da API por variáveis de ambiente: veja `backend/.env.example`. O Frontend lê
+`Frontend/.env.local` (criado pelo `make setup`); sem `VITE_API_URL` ele usa dados de demonstração.
 
 ### Protótipo Streamlit
 

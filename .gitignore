@@ -14,8 +14,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# Só na raiz: Frontend/src/lib/ é código do app e precisa ser versionado.
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -227,3 +228,10 @@ backend/storage/
 
 # Dependências do Frontend
 node_modules/
+
+# Worktrees do Claude Code
+.claude/worktrees/
+
+# O Frontend usa bun (bun.lock, mantido pelo Lovable). Lockfiles do npm surgem quando
+# alguém roda "npm install" por engano e não devem ser versionados.
+package-lock.json

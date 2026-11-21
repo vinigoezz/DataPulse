@@ -1,0 +1,13 @@
+# Configuração das ferramentas de qualidade do backend.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# F: erros reais (imports sem uso, nomes indefinidos) · E: estilo PEP 8 · I: ordem dos imports
+# UP: sintaxe moderna do Python · B: armadilhas comuns (bugbear)
+select = ["F", "E", "I", "UP", "B"]

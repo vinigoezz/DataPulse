@@ -1,24 +1,17 @@
-"""Ponto de entrada da API: `uvicorn app.main:app --reload` (dentro de backend/)."""
+"""Ponto de entrada da API: `uvicorn app.main:app --reload` (dentro de backend/).
 
-from fastapi import FastAPI, Request, status
+Só monta a aplicação: CORS, tradução de erros e o registro das features.
+Regras de negócio ficam dentro de cada feature em app/features/.
+"""
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from app import __version__
-from app.api.routes import datasets, health
-from app.core.config import get_settings
-from app.core.errors import (
-    ArquivoInvalido,
-    ArquivoMuitoGrande,
-    DataPulseError,
-    DatasetNaoEncontrado,
-)
-
-STATUS_POR_ERRO: dict[type[DataPulseError], int] = {
-    DatasetNaoEncontrado: status.HTTP_404_NOT_FOUND,
-    ArquivoInvalido: status.HTTP_422_UNPROCESSABLE_CONTENT,
-    ArquivoMuitoGrande: status.HTTP_413_CONTENT_TOO_LARGE,
-}
+from app.features import datasets, health
+from app.shared.config import get_settings
+from app.shared.errors import DataPulseError
 
 
 def create_app() -> FastAPI:
@@ -33,9 +26,12 @@ def create_app() -> FastAPI:
     )
 
     @app.exception_handler(DataPulseError)
-    def erro_de_dominio(_: Request, erro: DataPulseError) -> JSONResponse:
-        codigo = STATUS_POR_ERRO.get(type(erro), status.HTTP_400_BAD_REQUEST)
-        return JSONResponse(status_code=codigo, content={"detail": str(erro)})
+    def erro_esperado(_: Request, erro: DataPulseError) -> JSONResponse:
+        return JSONResponse(status_code=erro.status_code, content={"detail": str(erro)})
+
+    @app.get("/", include_in_schema=False)
+    def raiz() -> RedirectResponse:
+        return RedirectResponse(url="/docs")
 
     app.include_router(health.router, prefix="/api")
     app.include_router(datasets.router, prefix="/api")
