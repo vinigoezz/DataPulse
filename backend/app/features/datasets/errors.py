@@ -15,3 +15,7 @@ class ArquivoInvalido(EntradaInvalida):
 class ArquivoMuitoGrande(LimiteExcedido):
     def __init__(self, limite_mb: int):
         super().__init__(f"O arquivo excede o limite de {limite_mb} MB.")
+
+
+class ConsultaInvalida(EntradaInvalida):
+    """Busca, filtro ou ordenação pedidos de um jeito que não dá para atender."""

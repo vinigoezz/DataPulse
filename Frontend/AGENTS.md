@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history — force pushing, or rebasing/amending/squashing commits
@@ -27,10 +28,12 @@ use the editor.
   `LOVABLE_API_KEY`. When Lovable does not provide one, users can bring their
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
+
 <!-- LOVABLE:END -->
 
 ## Data Pulse architecture
-- Frontend only: no Lovable Cloud/backend; the FastAPI API lives in `../backend` (see `../docs/ARQUITETURA.md`) and is reached via `src/services/` (central `http.ts`, `VITE_API_URL`), falling back to `src/mocks/` when unset — keeps UI decoupled from data source. API contracts mirror `src/types/index.ts` (`backend/app/features/datasets/`: `models.py` and each slice); change both together.
+
+- Frontend only: no Lovable Cloud/backend; the FastAPI API lives in `../backend` (see `../docs/ARQUITETURA.md`). Code is organized in vertical slices under `src/features/<feature>/<slice>/`; route files in `src/routes/` stay thin. Each feature reaches data through its `api/` folder (HTTP via `src/lib/http.ts` when `VITE_API_URL` is set, demo data from `src/mocks/` otherwise) and React Query hooks in `queries.ts`. API contracts in `src/features/datasets/types.ts` mirror `backend/app/features/datasets/`; change both together.
 - Demo data is generated with a seeded PRNG (`src/mocks/rng.ts`) so numbers never change between reloads.
 - Theme is a `.dark` class on `<html>` managed by `src/lib/theme.tsx` (dark default, persisted in localStorage) — no next-themes.
 - Recharts axes must be direct children of the chart (no fragments), or they silently don't render.

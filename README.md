@@ -9,7 +9,7 @@ Análise de dados a partir de planilhas CSV.
 | `app.py` | Protótipo original em Streamlit |
 | `docs/ARQUITETURA.md` | Arquitetura (vertical slices), hospedagem e contrato da API |
 | `docs/ROADMAP.md` | Sprints e o que falta |
-| `docs/sprints/` | Explicação, passo a passo, do que foi feito em cada sprint |
+| `docs/sprints/` | Explicação, passo a passo, do que foi feito em cada sprint (`sprint-0/`, `sprint-1/`...) |
 
 ## Como rodar
 

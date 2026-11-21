@@ -19,8 +19,9 @@ flowchart LR
 | API | `backend/` | Recebe arquivos, trata e guarda os dados, serve linhas paginadas e estatísticas. |
 | Protótipo | `app.py` | App Streamlit original. Será aposentado quando o Frontend cobrir o mesmo fluxo (Sprint 4). |
 
-O Frontend nunca fala direto com dados: tudo passa por `Frontend/src/services/` (cliente central
-em `http.ts`). Com `VITE_API_URL` definido, chama a API; sem ele, usa os mocks.
+O Frontend nunca fala direto com dados: cada feature tem uma pasta `api/` com uma interface e duas
+implementações, a HTTP (usa `src/lib/http.ts`) e a de demonstração (usa `src/mocks/`). Com
+`VITE_API_URL` definido, as telas usam a API; sem ele, a demonstração (útil no preview do Lovable).
 
 ## Hospedagem (decidido)
 
@@ -86,7 +87,36 @@ Regras:
 2. Registre o router no `__init__.py` da feature.
 3. Crie `tests/features/<feature>/test_<fatia>.py`.
 
-O Frontend adota a mesma organização (`src/features/<feature>/`) no Sprint 1.
+## Frontend em vertical slices
+
+As rotas em `src/routes/` (exigidas pelo TanStack Start) são **cascas finas**: título da página,
+parâmetros da URL e qual componente mostrar. A tela de verdade mora na feature, com as mesmas fatias
+do backend:
+
+```
+Frontend/src/
+├── routes/                     # casca: head + validateSearch + componente da feature
+├── features/datasets/
+│   ├── types.ts                # contratos (espelham o backend) e regras pequenas (canExplore...)
+│   ├── queries.ts              # React Query: chaves de cache e hooks (useDatasets, useRemoveDataset...)
+│   ├── api/                    # datasets-api.ts (interface), http-*, demo-*, query-rows (regras da demo)
+│   ├── components/             # usados por mais de uma fatia (StatusBadge)
+│   ├── listar/                 # tela Meus Datasets
+│   ├── importar/               # tela Importar
+│   └── explorar/               # tela Explorador
+├── components/ui, components/layout   # visual compartilhado (shadcn + layout do app)
+├── lib/                        # utilidades sem regra de negócio (http, format, theme)
+└── mocks/                      # dados de demonstração
+```
+
+Mesmas regras do backend: uma fatia não importa outra (o que é dividido sobe para a raiz da
+feature); lógica que dá para testar sem tela fica em `.ts` ao lado do componente
+(`filter-datasets.ts`, `rows-query-state.ts`, `preview.ts`), com o teste junto (`*.test.ts`).
+Nomes de pastas em português (iguais às fatias do backend); componentes e funções em inglês, como no
+restante do código gerado pelo Lovable.
+
+Dashboard, Relatórios e Configurações ainda estão em `routes/` com dados de demonstração e viram
+features nos sprints 4 e 5.
 
 ## Contrato da API
 
@@ -97,18 +127,20 @@ O Frontend adota a mesma organização (`src/features/<feature>/`) no Sprint 1.
 | POST | `/api/datasets/upload` | `Dataset` (201). Multipart: `file`, opcionais `description`, `separator`, `encoding` |
 | GET | `/api/datasets/{id}` | `Dataset` |
 | DELETE | `/api/datasets/{id}` | 204 |
-| GET | `/api/datasets/{id}/rows?page=1&page_size=25` | `PaginatedRows` (página começa em 1, máx. 1000 linhas) |
-| GET | `/api/datasets/{id}/stats` | `ColumnStats[]` |
+| GET | `/api/datasets/{id}/rows` | `PaginatedRows`. Parâmetros: `page` (começa em 1), `page_size` (máx. 1000), `search` (texto em qualquer coluna), `filters` (JSON `{"coluna": "valor exato"}`), `sort` (coluna), `order` (`asc`/`desc`). `total` conta as linhas filtradas. |
+| GET | `/api/datasets/{id}/stats` | `ColumnStats[]`. Colunas `categoria` trazem `values` (opções de filtro). |
 
 Erros esperados respondem `{"detail": "mensagem"}`: 404 (dataset não existe), 413 (arquivo acima
-de `DATAPULSE_MAX_UPLOAD_MB`), 422 (arquivo ilegível, vazio ou formato não suportado). A
+de `DATAPULSE_MAX_UPLOAD_MB`), 422 (arquivo ilegível, vazio, formato não suportado, ou
+busca/filtro com coluna inexistente). A
 documentação interativa fica em `http://localhost:8000/docs` (a raiz `/` redireciona para lá).
 
-Ao mudar um contrato, altere juntos o modelo Python da fatia e `Frontend/src/types/index.ts`.
+Ao mudar um contrato, altere juntos o modelo Python da fatia e `Frontend/src/features/datasets/types.ts`.
 
 ## Fluxo de importação
 
-1. O Frontend valida uma prévia no navegador (Papa Parse, só as primeiras linhas).
+1. O Frontend valida uma prévia no navegador (Papa Parse, só as primeiras linhas). Arquivos
+   `.zip`/`.gz` não têm prévia: vão direto para a API.
 2. Ao concluir, envia o arquivo para `POST /api/datasets/upload`.
 3. A API copia o upload para `storage/tmp/` respeitando o limite de tamanho, detecta encoding
    (utf-8 → latin-1) e separador (`, ; tab |`), lê com pandas e converte colunas de data.

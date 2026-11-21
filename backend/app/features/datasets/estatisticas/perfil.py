@@ -23,6 +23,7 @@ class ColumnStats(ColumnSchema):
     min: float | None = None
     max: float | None = None
     mean: float | None = None
+    values: list[str] | None = None  # só em colunas "categoria": as opções para filtrar
 
 
 # Colunas numéricas com estes nomes são exibidas como dinheiro.
@@ -73,5 +74,7 @@ def estatisticas(df: pd.DataFrame) -> list[ColumnStats]:
             stats.min = _numero(serie.min())
             stats.max = _numero(serie.max())
             stats.mean = _numero(serie.mean())
+        if coluna.type == "categoria":
+            stats.values = sorted(serie.dropna().astype("string").unique().tolist())
         resultado.append(stats)
     return resultado

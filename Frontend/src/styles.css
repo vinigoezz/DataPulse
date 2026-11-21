@@ -77,7 +77,6 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-
 :root {
   --radius: 0.75rem;
   --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
@@ -161,17 +160,42 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
-  body { background-color: var(--color-background); color: var(--color-foreground); font-feature-settings: "cv11", "ss01"; }
-  :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings: "cv11", "ss01";
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
 }
 
-@utility bg-gradient-brand { background-image: var(--gradient-brand); }
-@utility text-gradient-brand { background-image: var(--gradient-brand); background-clip: text; -webkit-background-clip: text; color: transparent; }
-@utility shadow-card { box-shadow: var(--shadow-card); }
-@utility shadow-brand { box-shadow: var(--shadow-brand); }
-@utility tabular { font-variant-numeric: tabular-nums; }
+@utility bg-gradient-brand {
+  background-image: var(--gradient-brand);
+}
+@utility text-gradient-brand {
+  background-image: var(--gradient-brand);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+@utility shadow-brand {
+  box-shadow: var(--shadow-brand);
+}
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
 @utility surface-card {
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
@@ -179,14 +203,49 @@
   box-shadow: var(--shadow-card);
 }
 @utility bg-grid {
-  background-image: linear-gradient(to right, color-mix(in oklab, var(--color-border) 55%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--color-border) 55%, transparent) 1px, transparent 1px);
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-border) 55%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-border) 55%, transparent) 1px,
+      transparent 1px
+    );
   background-size: 32px 32px;
   mask-image: radial-gradient(ellipse at top, black 20%, transparent 70%);
 }
-@utility animate-enter { animation: enter 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-@utility animate-pulse-line { animation: pulseline 2.4s ease-in-out infinite; }
+@utility animate-enter {
+  animation: enter 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@utility animate-pulse-line {
+  animation: pulseline 2.4s ease-in-out infinite;
+}
 
-@keyframes enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-@keyframes pulseline { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pulseline {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

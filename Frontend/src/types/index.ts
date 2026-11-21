@@ -1,23 +1,4 @@
-export type DatasetStatus = "processado" | "processando" | "erro" | "pendente";
-
-export interface Dataset {
-  id: string;
-  name: string;
-  importedAt: string; // ISO
-  rows: number;
-  columns: number;
-  sizeBytes: number;
-  status: DatasetStatus;
-  description: string;
-}
-
-export type ColumnType = "texto" | "número" | "moeda" | "data" | "categoria";
-
-export interface ColumnSchema {
-  key: string;
-  label: string;
-  type: ColumnType;
-}
+/** Tipos ainda usados pelos dados de demonstração (dashboard e relatórios). */
 
 export interface SaleRecord {
   id: string;
@@ -58,22 +39,4 @@ export interface ReportItem {
   createdAt: string;
   type: "Desempenho" | "Financeiro" | "Operacional" | "Comercial";
   author: string;
-}
-
-export interface ColumnStats {
-  key: string;
-  label: string;
-  type: ColumnType;
-  nulls: number;
-  distinct: number;
-  min?: number;
-  max?: number;
-  mean?: number;
-}
-
-export interface PaginatedRows<T> {
-  rows: T[];
-  total: number;
-  page: number;
-  pageSize: number;
 }

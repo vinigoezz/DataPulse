@@ -25,3 +25,10 @@ def test_endpoint_de_estatisticas(client, dataset_vendas):
 
 def test_estatisticas_de_dataset_inexistente(client):
     assert client.get("/api/datasets/ds-naoexiste/stats").status_code == 404
+
+
+def test_categorias_trazem_as_opcoes_de_filtro(client, dataset_vendas):
+    resposta = client.get(f"/api/datasets/{dataset_vendas['id']}/stats")
+    stats = {s["key"]: s for s in resposta.json()}
+    assert stats["filial"]["values"] == ["Recife", "São Paulo"]
+    assert stats["quantidade"]["values"] is None

@@ -1,7 +1,11 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 type Theme = "dark" | "light";
-const Ctx = createContext<{ theme: Theme; setTheme: (t: Theme) => void; toggle: () => void }>({ theme: "dark", setTheme: () => {}, toggle: () => {} });
+const Ctx = createContext<{ theme: Theme; setTheme: (t: Theme) => void; toggle: () => void }>({
+  theme: "dark",
+  setTheme: () => {},
+  toggle: () => {},
+});
 export const THEME_KEY = "datapulse-theme";
 
 /** Inline script that applies the saved theme before paint. */
@@ -15,8 +19,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setTheme = (t: Theme) => {
     setThemeState(t);
     document.documentElement.classList.toggle("dark", t === "dark");
-    try { localStorage.setItem(THEME_KEY, t); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(THEME_KEY, t);
+    } catch {
+      /* ignore */
+    }
   };
-  return <Ctx.Provider value={{ theme, setTheme, toggle: () => setTheme(theme === "dark" ? "light" : "dark") }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider
+      value={{ theme, setTheme, toggle: () => setTheme(theme === "dark" ? "light" : "dark") }}
+    >
+      {children}
+    </Ctx.Provider>
+  );
 }
 export const useTheme = () => useContext(Ctx);

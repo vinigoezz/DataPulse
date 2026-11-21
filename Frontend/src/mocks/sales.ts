@@ -1,9 +1,26 @@
-import type { ColumnSchema, SaleRecord } from "@/types";
+import type { ColumnSchema } from "@/features/datasets/types";
+import type { SaleRecord } from "@/types";
 import { mulberry32, pick } from "./rng";
 
-export const FILIAIS = ["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Curitiba", "Porto Alegre", "Recife"];
+export const FILIAIS = [
+  "São Paulo",
+  "Rio de Janeiro",
+  "Belo Horizonte",
+  "Curitiba",
+  "Porto Alegre",
+  "Recife",
+];
 export const CANAIS = ["E-commerce", "Loja física", "Marketplace", "B2B"];
-export const VENDEDORES = ["Ana Souza", "Bruno Lima", "Carla Mendes", "Diego Rocha", "Elisa Martins", "Felipe Alves", "Gabriela Nunes", "Henrique Costa"];
+export const VENDEDORES = [
+  "Ana Souza",
+  "Bruno Lima",
+  "Carla Mendes",
+  "Diego Rocha",
+  "Elisa Martins",
+  "Felipe Alves",
+  "Gabriela Nunes",
+  "Henrique Costa",
+];
 
 export const PRODUTOS: { produto: string; categoria: string; preco: number; margem: number }[] = [
   { produto: "Notebook Pro 14", categoria: "Eletrônicos", preco: 6890, margem: 0.22 },

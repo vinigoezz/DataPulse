@@ -57,12 +57,46 @@ export function computeKpis(rows: SaleRecord[]): Kpi[] {
   const total = m.reduce((s, p) => s + p.receita, 0);
   const totalPrev = total - cur.receita + prev.receita;
   const pedidos = m.reduce((s, p) => s + p.pedidos, 0);
-  const ticket = (p: { receita: number; pedidos: number }) => (p.pedidos ? p.receita / p.pedidos : 0);
-  const margin = (p: { receita: number; custo: number }) => (p.receita ? ((p.receita - p.custo) / p.receita) * 100 : 0);
+  const ticket = (p: { receita: number; pedidos: number }) =>
+    p.pedidos ? p.receita / p.pedidos : 0;
+  const margin = (p: { receita: number; custo: number }) =>
+    p.receita ? ((p.receita - p.custo) / p.receita) * 100 : 0;
   return [
-    { id: "receita", label: "Faturamento total", value: total, format: "currency", delta: pct(cur.receita, prev.receita), previous: totalPrev, trend: m.map((p) => p.receita) },
-    { id: "pedidos", label: "Total de pedidos", value: pedidos, format: "number", delta: pct(cur.pedidos, prev.pedidos), previous: pedidos - cur.pedidos + prev.pedidos, trend: m.map((p) => p.pedidos) },
-    { id: "ticket", label: "Ticket médio", value: pedidos ? total / pedidos : 0, format: "currency", delta: pct(ticket(cur), ticket(prev)), previous: ticket(prev), trend: m.map(ticket) },
-    { id: "margem", label: "Margem de lucro", value: margin({ receita: total, custo: m.reduce((s, p) => s + p.custo, 0) }), format: "percent", delta: margin(cur) - margin(prev), previous: margin(prev), trend: m.map(margin) },
+    {
+      id: "receita",
+      label: "Faturamento total",
+      value: total,
+      format: "currency",
+      delta: pct(cur.receita, prev.receita),
+      previous: totalPrev,
+      trend: m.map((p) => p.receita),
+    },
+    {
+      id: "pedidos",
+      label: "Total de pedidos",
+      value: pedidos,
+      format: "number",
+      delta: pct(cur.pedidos, prev.pedidos),
+      previous: pedidos - cur.pedidos + prev.pedidos,
+      trend: m.map((p) => p.pedidos),
+    },
+    {
+      id: "ticket",
+      label: "Ticket médio",
+      value: pedidos ? total / pedidos : 0,
+      format: "currency",
+      delta: pct(ticket(cur), ticket(prev)),
+      previous: ticket(prev),
+      trend: m.map(ticket),
+    },
+    {
+      id: "margem",
+      label: "Margem de lucro",
+      value: margin({ receita: total, custo: m.reduce((s, p) => s + p.custo, 0) }),
+      format: "percent",
+      delta: margin(cur) - margin(prev),
+      previous: margin(prev),
+      trend: m.map(margin),
+    },
   ];
 }

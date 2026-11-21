@@ -1,8 +1,26 @@
-import { BarChart3, Bot, Database, FileText, LayoutGrid, Settings, Table2, UploadCloud, type LucideIcon } from "lucide-react";
+import {
+  BarChart3,
+  Bot,
+  Database,
+  FileText,
+  LayoutGrid,
+  Settings,
+  Table2,
+  UploadCloud,
+  type LucideIcon,
+} from "lucide-react";
 
 export interface NavItem {
   title: string;
-  to: "/" | "/dashboard" | "/importar" | "/datasets" | "/explorador" | "/relatorios" | "/assistente" | "/configuracoes";
+  to:
+    | "/"
+    | "/dashboard"
+    | "/importar"
+    | "/datasets"
+    | "/explorador"
+    | "/relatorios"
+    | "/assistente"
+    | "/configuracoes";
   icon: LucideIcon;
   soon?: boolean;
 }

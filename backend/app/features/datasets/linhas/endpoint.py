@@ -1,11 +1,11 @@
-"""GET /api/datasets/{id}/rows: as linhas do dataset, uma página por vez."""
+"""GET /api/datasets/{id}/rows: as linhas do dataset, com busca, filtros, ordenação e páginas."""
 
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Query
 
 from app.features.datasets.dependencies import RepositorioDep
-from app.features.datasets.linhas.paginacao import paginar
+from app.features.datasets.linhas.consulta import ConsultaDeLinhas, Ordem, consultar, ler_filtros
 from app.shared.api_model import ApiModel
 
 router = APIRouter()
@@ -27,8 +27,22 @@ def listar_linhas(
     repositorio: RepositorioDep,
     page: Annotated[int, Query(ge=1, description="Começa em 1")] = 1,
     page_size: Annotated[int, Query(ge=1, le=TAMANHO_MAXIMO)] = TAMANHO_PADRAO,
+    search: Annotated[str, Query(description="Texto buscado em todas as colunas")] = "",
+    filters: Annotated[
+        str | None, Query(description='JSON com valores exatos, ex.: {"filial": "Recife"}')
+    ] = None,
+    sort: Annotated[str | None, Query(description="Coluna usada na ordenação")] = None,
+    order: Ordem = "asc",
 ) -> PaginatedRows:
-    dados = repositorio.carregar_dados(dataset_id)
+    consulta = ConsultaDeLinhas(
+        pagina=page,
+        tamanho=page_size,
+        busca=search,
+        filtros=ler_filtros(filters),
+        ordenar_por=sort or None,
+        ordem=order,
+    )
+    resultado = consultar(repositorio.carregar_dados(dataset_id), consulta)
     return PaginatedRows(
-        rows=paginar(dados, page, page_size), total=len(dados), page=page, page_size=page_size
+        rows=resultado.linhas, total=resultado.total, page=page, page_size=page_size
     )

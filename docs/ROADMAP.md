@@ -13,16 +13,21 @@ Cada passo concluído tem uma explicação em linguagem simples em `docs/sprints
 - [x] Comando único para instalar, rodar, testar e conferir o código (`Makefile`)
 - [x] Corrigir o `.gitignore` que escondia `Frontend/src/lib/`
 - [x] Recuperar `Frontend/src/lib/` do Lovable (7 arquivos; testes, checagem de tipos e build passando)
-- [ ] Commitar o Sprint 0
+- [x] Commitar o Sprint 0
 
 ## Sprint 1 — Frontend com dados reais
 
-- [ ] Reorganizar o Frontend em `src/features/<feature>/` (as rotas viram “casca” fina)
-- [ ] Formatar o Frontend com o Prettier (hoje o `make lint` acusa ~340 avisos de formatação)
-- [ ] Trocar os mocks de `use-datasets.ts` pelo `datasetsService` + React Query
-- [ ] Datasets: listar, ver detalhe e apagar pela API
-- [ ] Explorador: linhas paginadas e estatísticas da API
-- [ ] Estados de carregando, erro e vazio em todas as telas
+- [x] Frontend formatado com o Prettier (`make lint` sem erros; restam 11 avisos antigos nos componentes do Lovable)
+- [x] Frontend reorganizado em `src/features/datasets/{listar,importar,explorar}` (rotas viram casca fina)
+- [x] Camada de dados: `datasetsApi` (API ou demonstração) + React Query
+- [x] Datasets: listar, ver detalhe, apagar e abrir no Explorador pela API
+- [x] Explorador: linhas paginadas e estatísticas da API, com escolha de dataset pela URL
+- [x] Busca, filtro e ordenação **no servidor** (adiantado do Sprint 3: é a mesma fatia)
+- [x] Importar: aceita `.zip`/`.gz`, descrição opcional, atualiza a lista e leva ao Explorador
+- [x] Estados de carregando, erro (com “tentar novamente”) e vazio nas três telas
+- [x] Testes: 26 na API, 21 no Frontend
+- [ ] Conferir as telas no navegador (`make dev`)
+- [ ] Commitar o Sprint 1
 
 **Entrega:** importar um CSV e vê-lo de verdade em Datasets e no Explorador.
 
@@ -43,7 +48,8 @@ Feito cedo de propósito: os limites da Vercel aparecem agora, quando ainda é b
 ## Sprint 3 — Dados brasileiros e Explorador no servidor
 
 - [ ] Ler `45,50` e `1.234,56` como número/moeda
-- [ ] Filtro, busca e ordenação no servidor em `/rows`
+- [x] Filtro, busca e ordenação no servidor em `/rows` (adiantado para o Sprint 1)
+- [ ] Busca e filtros rápidos em arquivos grandes (medir; índices ou DuckDB se preciso)
 - [ ] Testes com CSVs reais (latin-1, `;`, dd/mm/aaaa)
 
 **Entrega:** Explorador rápido com arquivos grandes e colunas numéricas reconhecidas.
