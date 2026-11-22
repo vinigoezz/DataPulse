@@ -1,0 +1,20 @@
+# Serviços de apoio para desenvolvimento: um Postgres e um armazenamento S3 locais,
+# iguais em funcionamento aos da nuvem. Usados por "make test-integracao".
+# Senhas fixas de propósito: só existem no seu computador.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: datapulse
+      POSTGRES_PASSWORD: datapulse
+      POSTGRES_DB: datapulse
+    ports: ["54329:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U datapulse"]
+      interval: 2s
+      retries: 20
+
+  # S3 de testes (a imagem do MinIO deixou de ser publicada). Aceita qualquer chave.
+  s3:
+    image: adobe/s3mock:latest
+    ports: ["9090:9090"]

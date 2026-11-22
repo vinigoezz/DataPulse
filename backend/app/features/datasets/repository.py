@@ -1,77 +1,75 @@
-"""Persistência dos datasets em disco.
+"""Persistência dos datasets, juntando duas peças trocáveis:
 
-Cada dataset vive em ``<storage_dir>/datasets/<id>/`` com:
-- ``data.parquet``: os dados já tratados (tipos e datas preservados, leitura rápida);
-- ``meta.json``: os metadados (DatasetMeta).
+- o **catálogo** (metadados): JSON local ou Postgres;
+- os **arquivos** (os dados em Parquet): pasta local ou bucket S3.
 
-A interface é pequena de propósito: trocar pelo Supabase (Postgres + Storage) depois
-só exige outra implementação com os mesmos métodos.
+As fatias só falam com o DatasetRepository e não sabem qual peça está ligada.
 """
 
+import io
 import re
-import shutil
 import threading
 from collections import OrderedDict
-from pathlib import Path
 
 import pandas as pd
 
+from app.features.datasets.catalogo import CatalogoDeDatasets
 from app.features.datasets.errors import DatasetNaoEncontrado
 from app.features.datasets.models import DatasetMeta
+from app.shared.arquivos import ArmazenamentoDeArquivos, ArquivoAusente
 
 ID_VALIDO = re.compile(r"^[a-z0-9-]{1,64}$")
 # Quantos DataFrames ficam em memória para paginação/estatísticas rápidas.
 CACHE_MAX = 4
 
 
+def chave_dos_dados(dataset_id: str) -> str:
+    return f"datasets/{dataset_id}/data.parquet"
+
+
 class DatasetRepository:
-    def __init__(self, base_dir: Path):
-        self.base_dir = base_dir
-        self.datasets_dir = base_dir / "datasets"
-        self.tmp_dir = base_dir / "tmp"
-        self.datasets_dir.mkdir(parents=True, exist_ok=True)
-        self.tmp_dir.mkdir(parents=True, exist_ok=True)
+    def __init__(self, catalogo: CatalogoDeDatasets, arquivos: ArmazenamentoDeArquivos):
+        self.catalogo = catalogo
+        self.arquivos = arquivos
         self._cache: OrderedDict[str, pd.DataFrame] = OrderedDict()
         self._lock = threading.Lock()
 
-    def _pasta(self, dataset_id: str) -> Path:
-        # O id vem da URL: validar impede acessar caminhos fora do storage.
+    @staticmethod
+    def _validar(dataset_id: str) -> str:
+        # O id vem da URL: validar impede montar chaves estranhas no armazenamento.
         if not ID_VALIDO.match(dataset_id):
             raise DatasetNaoEncontrado(dataset_id)
-        return self.datasets_dir / dataset_id
+        return dataset_id
 
     def salvar(self, meta: DatasetMeta, df: pd.DataFrame) -> None:
-        destino = self._pasta(meta.id)
-        # Escreve numa pasta temporária e renomeia: quem lista nunca vê um dataset pela metade.
-        parcial = self.tmp_dir / f"{meta.id}.partial"
-        shutil.rmtree(parcial, ignore_errors=True)
-        parcial.mkdir(parents=True)
-        df.to_parquet(parcial / "data.parquet", index=False)
-        (parcial / "meta.json").write_text(meta.model_dump_json(indent=2), encoding="utf-8")
-        parcial.rename(destino)
+        self._validar(meta.id)
+        buffer = io.BytesIO()
+        df.to_parquet(buffer, index=False)
+        # Primeiro os dados, depois o catálogo: quem lista nunca vê um dataset sem dados.
+        self.arquivos.guardar(chave_dos_dados(meta.id), buffer.getvalue())
+        try:
+            self.catalogo.adicionar(meta)
+        except Exception:
+            self.arquivos.apagar(chave_dos_dados(meta.id))
+            raise
 
     def listar(self) -> list[DatasetMeta]:
-        metas = [
-            DatasetMeta.model_validate_json(arquivo.read_text(encoding="utf-8"))
-            for arquivo in self.datasets_dir.glob("*/meta.json")
-        ]
-        return sorted(metas, key=lambda m: m.imported_at, reverse=True)
+        return self.catalogo.listar()
 
     def obter(self, dataset_id: str) -> DatasetMeta:
-        arquivo = self._pasta(dataset_id) / "meta.json"
-        if not arquivo.exists():
-            raise DatasetNaoEncontrado(dataset_id)
-        return DatasetMeta.model_validate_json(arquivo.read_text(encoding="utf-8"))
+        return self.catalogo.obter(self._validar(dataset_id))
 
     def carregar_dados(self, dataset_id: str) -> pd.DataFrame:
+        self._validar(dataset_id)
         with self._lock:
             if dataset_id in self._cache:
                 self._cache.move_to_end(dataset_id)
                 return self._cache[dataset_id]
-        arquivo = self._pasta(dataset_id) / "data.parquet"
-        if not arquivo.exists():
-            raise DatasetNaoEncontrado(dataset_id)
-        df = pd.read_parquet(arquivo)
+        try:
+            conteudo = self.arquivos.ler(chave_dos_dados(dataset_id))
+        except ArquivoAusente as erro:
+            raise DatasetNaoEncontrado(dataset_id) from erro
+        df = pd.read_parquet(io.BytesIO(conteudo))
         with self._lock:
             self._cache[dataset_id] = df
             while len(self._cache) > CACHE_MAX:
@@ -79,9 +77,8 @@ class DatasetRepository:
         return df
 
     def remover(self, dataset_id: str) -> None:
-        pasta = self._pasta(dataset_id)
-        if not pasta.exists():
-            raise DatasetNaoEncontrado(dataset_id)
+        # Primeiro o catálogo (some da lista na hora), depois os dados.
+        self.catalogo.remover(self._validar(dataset_id))
         with self._lock:
             self._cache.pop(dataset_id, None)
-        shutil.rmtree(pasta)
+        self.arquivos.apagar(chave_dos_dados(dataset_id))

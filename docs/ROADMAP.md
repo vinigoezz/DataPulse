@@ -31,17 +31,24 @@ Cada passo concluído tem uma explicação em linguagem simples em `docs/sprints
 
 **Entrega:** importar um CSV e vê-lo de verdade em Datasets e no Explorador.
 
-## Sprint 2 — Supabase e primeiro deploy na Vercel
+## Sprint 2 — Arquitetura portátil, Supabase e primeiro deploy
 
-Feito cedo de propósito: os limites da Vercel aparecem agora, quando ainda é barato mudar.
+Feito cedo de propósito: os limites da hospedagem aparecem agora, quando ainda é barato mudar.
+Regra do sprint: **nenhum código depende de um provedor específico** (ver `docs/sprints/sprint-2/`).
 
-- [ ] Projeto no Supabase: tabela `datasets` (metadados) e bucket de Storage (Parquet)
-- [ ] Migrações em `supabase/` na raiz do repositório
-- [ ] `SupabaseDatasetRepository` com os mesmos métodos do repositório em disco (escolha por variável de ambiente)
-- [ ] Upload direto do navegador para o Supabase Storage (contorna o limite de ~4,5 MB da Vercel)
-- [ ] Deploy da API na Vercel (conferir o tamanho do pacote com pandas + pyarrow)
-- [ ] Deploy do Frontend na Vercel (alvo do Nitro = Vercel) com `VITE_API_URL` apontando para a API
-- [ ] Segredos só nas variáveis de ambiente da Vercel, nunca no repositório
+- [x] Catálogo de datasets trocável: JSON local ou **Postgres** por `DATAPULSE_DATABASE_URL`
+- [x] Arquivos trocáveis: pasta local ou **S3** (Supabase Storage, AWS, R2...) por `DATAPULSE_S3_*`
+- [x] Migrações em SQL puro em `backend/migrations/` e comando `make migrar`
+- [x] Testes de contrato: as peças locais e as de nuvem passam nos mesmos testes (`make test-integracao`)
+- [x] `docker-compose.yml` com Postgres e S3 locais para testar sem internet
+- [x] API em container (`backend/Dockerfile`), roda em qualquer hospedagem
+- [x] Build do Frontend com alvo escolhido pela hospedagem (Vercel detectado sozinho; `NITRO_PRESET` nos outros)
+- [ ] Commitar o passo 1 (arquitetura portátil)
+- [x] Preencher `backend/.env` com o banco e as chaves S3 do Supabase e rodar `make migrar`
+- [ ] Deploy da API (recomendado: container no Render; alternativa: função na Vercel, se o pacote couber)
+- [ ] Deploy do Frontend na Vercel com `VITE_API_URL` apontando para a API
+- [ ] Upload direto do navegador para o Storage, **só se** a API ficar na Vercel (limite de ~4,5 MB por envio)
+- [ ] Segredos só nas variáveis de ambiente das hospedagens, nunca no repositório
 
 **Entrega:** o DataPulse acessível por uma URL pública, com os dados guardados no Supabase.
 

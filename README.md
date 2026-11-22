@@ -20,6 +20,7 @@ make setup   # instala tudo (uma vez)
 make dev     # sobe API (http://localhost:8000/docs) e Frontend juntos
 make test    # roda os testes
 make lint    # confere a qualidade do código
+make migrar  # prepara o banco e os arquivos configurados em backend/.env
 make         # lista todos os comandos
 ```
 

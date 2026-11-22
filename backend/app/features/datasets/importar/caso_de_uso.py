@@ -3,9 +3,10 @@
 Não conhece HTTP: recebe um stream de bytes e devolve o Dataset criado.
 """
 
+import tempfile
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import IO
 
@@ -33,16 +34,15 @@ def importar_dataset(
         raise ArquivoInvalido("Formato não suportado. Envie um arquivo .csv, .zip ou .gz.")
 
     dataset_id = _novo_id()
-    temporario = repositorio.tmp_dir / f"{dataset_id}.upload"
-    try:
+    # Pasta temporária do sistema: existe em qualquer hospedagem e some sozinha no fim.
+    with tempfile.TemporaryDirectory(prefix="datapulse-") as pasta:
+        temporario = Path(pasta) / "upload"
         tamanho = _copiar_com_limite(pedido.arquivo, temporario, limite_mb)
         if tamanho == 0:
             raise ArquivoInvalido("O arquivo está vazio.")
         dados, separador, encoding = leitura_csv.ler_csv(
             temporario, pedido.nome_arquivo, pedido.separador, pedido.encoding
         )
-    finally:
-        temporario.unlink(missing_ok=True)
 
     if dados.empty:
         raise ArquivoInvalido("O arquivo não contém dados.")
@@ -50,7 +50,7 @@ def importar_dataset(
     meta = DatasetMeta(
         id=dataset_id,
         name=Path(pedido.nome_arquivo).name,
-        imported_at=datetime.now().replace(microsecond=0),
+        imported_at=datetime.now(UTC).replace(microsecond=0),
         rows=len(dados),
         columns=len(dados.columns),
         size_bytes=tamanho,

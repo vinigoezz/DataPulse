@@ -1,11 +1,14 @@
 """Modelos usados por várias fatias de datasets.
 
-Espelham Frontend/src/types/index.ts (o JSON sai em camelCase): ao mudar um, mude o outro.
+Espelham Frontend/src/features/datasets/types.ts (o JSON sai em camelCase):
+ao mudar um, mude o outro.
 Contratos usados por uma fatia só ficam dentro dela (ex.: estatisticas/endpoint.py).
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Literal
+
+from pydantic import field_validator
 
 from app.shared.api_model import ApiModel
 
@@ -23,6 +26,12 @@ class Dataset(ApiModel):
     size_bytes: int
     status: DatasetStatus
     description: str = ""
+
+    @field_validator("imported_at")
+    @classmethod
+    def _sempre_com_fuso(cls, valor: datetime) -> datetime:
+        # Datas sem fuso (de versões antigas) são tratadas como UTC, para poder comparar.
+        return valor if valor.tzinfo else valor.replace(tzinfo=UTC)
 
 
 class DatasetMeta(Dataset):

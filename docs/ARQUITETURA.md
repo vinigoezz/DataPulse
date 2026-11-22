@@ -23,24 +23,28 @@ O Frontend nunca fala direto com dados: cada feature tem uma pasta `api/` com um
 implementações, a HTTP (usa `src/lib/http.ts`) e a de demonstração (usa `src/mocks/`). Com
 `VITE_API_URL` definido, as telas usam a API; sem ele, a demonstração (útil no preview do Lovable).
 
-## Hospedagem (decidido)
+## Hospedagem e portabilidade
 
-| Peça | Onde roda |
-| --- | --- |
-| Frontend e API | **Vercel** |
-| Banco de metadados, arquivos e login | **Supabase** (Postgres, Storage e Auth) |
+| Peça | Onde roda hoje | Como trocar |
+| --- | --- | --- |
+| Frontend | **Vercel** | O build detecta a Vercel sozinho; em outro lugar, `NITRO_PRESET` (ex.: `node-server`, `netlify`). |
+| API | Container (`backend/Dockerfile`); recomendado **Render** | Qualquer serviço que rode Docker (Railway, Fly.io, Cloud Run, servidor próprio). |
+| Catálogo (metadados) | **Supabase Postgres** | Qualquer Postgres: trocar `DATAPULSE_DATABASE_URL` e rodar `make migrar`. |
+| Arquivos (Parquet) | **Supabase Storage**, pelo protocolo S3 | Qualquer S3 (AWS, Cloudflare R2...): trocar `DATAPULSE_S3_*`. |
+| Login (Sprint 5) | Supabase Auth | A API valida o token pelo padrão JWT. |
 
-Consequências que guiam o roadmap (`docs/ROADMAP.md`):
+Regras que mantêm isso verdade:
 
-- Na Vercel o disco é temporário: os dados não podem ficar em `backend/storage/`. O
-  `DatasetRepository` ganha uma versão Supabase (metadados no Postgres, Parquet no Storage).
-- A Vercel limita o tamanho do corpo de cada requisição (cerca de 4,5 MB). Arquivos maiores vão do
-  navegador **direto para o Supabase Storage** e a API só processa o que já está lá.
-- pandas + pyarrow são pesados para uma função da Vercel; o tamanho do pacote é verificado no
-  primeiro deploy (Sprint 2), quando ainda é barato trocar de abordagem.
-- O Frontend usa Nitro no build; o alvo de deploy precisa ser o da Vercel (hoje o padrão é Cloudflare).
-- Migrações do banco ficam em `supabase/` na **raiz** do repositório, nunca em `Frontend/supabase/`,
-  que é área gerenciada pelo Lovable.
+- O código **não usa SDK de provedor**: Postgres via `psycopg` com SQL padrão, arquivos via `boto3` (S3).
+- O **Frontend só fala com a nossa API**, nunca direto com o banco.
+- Cada peça trocável tem uma **porta** (contrato) e adaptadores: `shared/arquivos/` (pasta local,
+  S3) e `features/datasets/catalogo/` (JSON local, Postgres). Os adaptadores passam pelos **mesmos
+  testes de contrato**; os de nuvem rodam com `make test-integracao` (Postgres e S3 no Docker).
+- Sem `DATAPULSE_DATABASE_URL`/`DATAPULSE_S3_BUCKET`, tudo roda em `backend/storage/` (desenvolvimento).
+- Migrações em SQL puro em `backend/migrations/`, numeradas, aplicadas uma vez (`schema_migrations`).
+  Não usamos `Frontend/supabase/`, que é área gerenciada pelo Lovable.
+- Configuração só por variáveis de ambiente (`backend/.env` em desenvolvimento, painel da
+  hospedagem em produção). Modelo em `backend/.env.example`.
 
 ## Backend em vertical slices
 
@@ -50,8 +54,11 @@ espalhar uma funcionalidade por pastas técnicas (`routes/`, `services/`, `schem
 ```
 backend/app/
 ├── main.py                    # monta o app: CORS, erros → HTTP, registra as features
+├── preparar.py                # make migrar: aplica migrações e cria o bucket
 ├── shared/                    # o que qualquer feature pode usar
-│   ├── config.py              # Settings (variáveis DATAPULSE_*)
+│   ├── config.py              # Settings (variáveis DATAPULSE_*, lidas também de backend/.env)
+│   ├── arquivos/              # porta de arquivos: pasta_local.py, bucket_s3.py
+│   ├── banco/                 # conexão Postgres e migrações (SQL em backend/migrations/)
 │   ├── errors.py              # categorias de erro: NaoEncontrado (404), EntradaInvalida (422), LimiteExcedido (413)
 │   └── api_model.py           # base dos contratos (JSON em camelCase)
 └── features/
@@ -59,13 +66,14 @@ backend/app/
     └── datasets/
         ├── models.py          # Dataset e DatasetMeta (usados por várias fatias)
         ├── errors.py          # DatasetNaoEncontrado, ArquivoInvalido, ArquivoMuitoGrande
-        ├── repository.py      # onde os datasets são guardados
-        ├── dependencies.py    # entrega o repositório às rotas
+        ├── catalogo/          # porta do catálogo: arquivos_json.py, postgres.py
+        ├── repository.py      # junta catálogo + arquivos (+ cache); é o que as fatias usam
+        ├── dependencies.py    # monta o repositório conforme a configuração
         ├── importar/          # POST /upload → endpoint, caso_de_uso, leitura_csv, datas
         ├── listar/            # GET  /
         ├── obter/             # GET  /{id}
         ├── remover/           # DELETE /{id}
-        ├── linhas/            # GET  /{id}/rows → endpoint, paginacao
+        ├── linhas/            # GET  /{id}/rows → endpoint, consulta
         └── estatisticas/      # GET  /{id}/stats → endpoint, perfil
 ```
 
@@ -76,7 +84,7 @@ Regras:
 2. **Contrato mora com quem usa.** `PaginatedRows` só existe em `linhas/`; `ColumnStats` só em
    `estatisticas/`. Sobe para `models.py` quando uma segunda fatia precisar.
 3. **Endpoint fino.** O `endpoint.py` traduz HTTP ↔ Python. Regras com mais de poucas linhas
-   ficam num módulo ao lado (`caso_de_uso.py`, `paginacao.py`), testável sem HTTP.
+   ficam num módulo ao lado (`caso_de_uso.py`, `consulta.py`), testável sem HTTP.
 4. **Erros por categoria.** Cada erro herda de uma categoria de `shared/errors.py`, que define o
    status HTTP. O `main.py` não conhece erros de nenhuma feature.
 5. **Testes espelham as fatias:** `tests/features/datasets/test_importar.py` e assim por diante.
