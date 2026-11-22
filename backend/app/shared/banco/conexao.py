@@ -14,6 +14,11 @@ def conectar(database_url: str) -> psycopg.Connection:
 
 def problema_no_endereco(database_url: str) -> str | None:
     """Explica, sem repetir a senha, o que falta num endereço de banco mal copiado."""
+    if any(caractere.isspace() for caractere in database_url):
+        return (
+            "Ele tem espaço ou quebra de linha no meio: provavelmente foi colada mais de uma "
+            "linha. O valor deve ser uma linha só, terminando em /postgres."
+        )
     if not database_url.startswith(("postgresql://", "postgres://")):
         return "Ele precisa começar com postgresql://"
     if "@" not in database_url:

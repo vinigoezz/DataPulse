@@ -37,3 +37,10 @@ def test_endereco_completo_nao_tem_problema():
     url = "postgresql://postgres.abc:senha@aws-0-us-east-2.pooler.supabase.com:5432/postgres"
     assert problema_no_endereco(url) is None
     assert problema_no_endereco("mysql://x@y.com/db") is not None
+
+
+def test_endereco_com_mais_de_uma_linha_explica_o_problema():
+    colado = "postgresql://u:senha@aws-0-us-east-2.pooler.supabase.com:5432/postgres\nDATAPULSE_S3_BUCKET=x"
+    problema = problema_no_endereco(colado)
+    assert problema is not None and "mais de uma" in problema
+    assert "u:senha" not in problema
