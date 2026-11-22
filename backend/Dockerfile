@@ -22,5 +22,6 @@ RUN useradd --create-home api
 USER api
 
 EXPOSE 8000
+# Ao iniciar: prepara o banco e o bucket (só faz o que falta) e sobe a API.
 # A maioria das hospedagens informa a porta pela variável PORT.
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers"]
+CMD ["sh", "-c", "python -m app.preparar && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]

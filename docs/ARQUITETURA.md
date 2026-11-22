@@ -28,7 +28,7 @@ implementações, a HTTP (usa `src/lib/http.ts`) e a de demonstração (usa `src
 | Peça | Onde roda hoje | Como trocar |
 | --- | --- | --- |
 | Frontend | **Vercel** | O build detecta a Vercel sozinho; em outro lugar, `NITRO_PRESET` (ex.: `node-server`, `netlify`). |
-| API | Container (`backend/Dockerfile`); recomendado **Render** | Qualquer serviço que rode Docker (Railway, Fly.io, Cloud Run, servidor próprio). |
+| API | Container (`backend/Dockerfile`) no **Render** (`render.yaml`) | Qualquer serviço que rode Docker (Railway, Fly.io, Cloud Run, servidor próprio). |
 | Catálogo (metadados) | **Supabase Postgres** | Qualquer Postgres: trocar `DATAPULSE_DATABASE_URL` e rodar `make migrar`. |
 | Arquivos (Parquet) | **Supabase Storage**, pelo protocolo S3 | Qualquer S3 (AWS, Cloudflare R2...): trocar `DATAPULSE_S3_*`. |
 | Login (Sprint 5) | Supabase Auth | A API valida o token pelo padrão JWT. |

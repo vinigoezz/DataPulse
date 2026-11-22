@@ -10,17 +10,19 @@ from fastapi.responses import JSONResponse, RedirectResponse
 
 from app import __version__
 from app.features import datasets, health
-from app.shared.config import get_settings
+from app.shared.config import Settings, get_settings
 from app.shared.errors import DataPulseError
 
 
-def create_app() -> FastAPI:
-    settings = get_settings()
+def create_app(settings: Settings | None = None) -> FastAPI:
+    settings = settings or get_settings()
     app = FastAPI(title="DataPulse API", version=__version__)
 
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
+        # Endereços que mudam a cada deploy (ex.: as prévias da Vercel) entram por padrão.
+        allow_origin_regex=settings.cors_origin_regex,
         allow_methods=["*"],
         allow_headers=["*"],
     )

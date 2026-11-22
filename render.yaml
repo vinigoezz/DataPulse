@@ -1,0 +1,36 @@
+# Configuração da API no Render (https://render.com/docs/blueprint-spec).
+# É só um "atalho de cadastro": a API é o container de backend/Dockerfile e roda igual
+# em qualquer outro serviço que aceite Docker.
+services:
+  - type: web
+    name: datapulse-api
+    runtime: docker
+    plan: free
+    region: ohio # perto do Supabase (us-east-2)
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    buildFilter:
+      paths: ["backend/**"] # mudanças só no site não refazem a API
+    envVars:
+      # Segredos: o Render pede os valores no cadastro (nunca ficam no repositório).
+      - key: DATAPULSE_DATABASE_URL
+        sync: false
+      - key: DATAPULSE_S3_ACCESS_KEY
+        sync: false
+      - key: DATAPULSE_S3_SECRET_KEY
+        sync: false
+      # Não são segredos.
+      - key: DATAPULSE_S3_BUCKET
+        value: datapulse
+      - key: DATAPULSE_S3_ENDPOINT
+        value: https://ngdncripmhnkunjfevqw.storage.supabase.co/storage/v1/s3
+      - key: DATAPULSE_S3_REGION
+        value: us-east-2
+      # O site na Vercel (produção e prévias) pode chamar a API.
+      - key: DATAPULSE_CORS_ORIGIN_REGEX
+        value: https://datapulse(-[a-z0-9-]+)?\.vercel\.app
+      # O plano grátis tem 512 MB de memória: arquivos grandes não cabem.
+      - key: DATAPULSE_MAX_UPLOAD_MB
+        value: "25"

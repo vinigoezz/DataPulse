@@ -56,6 +56,7 @@ class Settings:
     cors_origins: list[str] = field(
         default_factory=lambda: ["http://localhost:8080", "http://localhost:5173"]
     )
+    cors_origin_regex: str | None = None
     max_upload_mb: int = 200
 
     @classmethod
@@ -68,6 +69,7 @@ class Settings:
             cors_origins=_lista(os.environ["DATAPULSE_CORS_ORIGINS"])
             if "DATAPULSE_CORS_ORIGINS" in os.environ
             else padrao.cors_origins,
+            cors_origin_regex=_opcional("DATAPULSE_CORS_ORIGIN_REGEX"),
             max_upload_mb=int(os.environ.get("DATAPULSE_MAX_UPLOAD_MB", padrao.max_upload_mb)),
         )
 

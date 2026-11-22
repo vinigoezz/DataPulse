@@ -43,11 +43,12 @@ Regra do sprint: **nenhum código depende de um provedor específico** (ver `doc
 - [x] `docker-compose.yml` com Postgres e S3 locais para testar sem internet
 - [x] API em container (`backend/Dockerfile`), roda em qualquer hospedagem
 - [x] Build do Frontend com alvo escolhido pela hospedagem (Vercel detectado sozinho; `NITRO_PRESET` nos outros)
-- [ ] Commitar o passo 1 (arquitetura portátil)
+- [x] Commitar os passos 1 e 2
 - [x] Preencher `backend/.env` com o banco e as chaves S3 do Supabase e rodar `make migrar`
-- [ ] Deploy da API (recomendado: container no Render; alternativa: função na Vercel, se o pacote couber)
+- [x] Preparar o deploy: `render.yaml`, migrações ao iniciar o container, CORS para as prévias da Vercel, `Frontend/vercel.json`
+- [ ] Deploy da API no Render (container, plano grátis)
 - [ ] Deploy do Frontend na Vercel com `VITE_API_URL` apontando para a API
-- [ ] Upload direto do navegador para o Storage, **só se** a API ficar na Vercel (limite de ~4,5 MB por envio)
+- [ ] ~~Upload direto do navegador para o Storage~~: desnecessário com a API no Render (sem limite de 4,5 MB)
 - [ ] Segredos só nas variáveis de ambiente das hospedagens, nunca no repositório
 
 **Entrega:** o DataPulse acessível por uma URL pública, com os dados guardados no Supabase.
