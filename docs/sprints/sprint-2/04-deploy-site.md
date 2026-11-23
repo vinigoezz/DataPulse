@@ -45,3 +45,11 @@ dois motivos:
    **Correção:** Vercel → projeto → **Settings → Environment Variables** → adicionar
    `VITE_API_URL` = `https://datapulse-api-uqj2.onrender.com`, marcando **Production** e
    **Preview**. Depois, **Deployments** → no último deploy, **⋯ → Redeploy**.
+
+3. **A variável não podia ser "secreta".** Ao recadastrar, a Vercel recusou: variáveis com prefixo
+   `VITE_` vão para dentro do código do site, que qualquer visitante pode ler, então não podem ter
+   visibilidade **secret**. A solução foi usar **Config**. Não há risco: o endereço da API é
+   público. Senhas de verdade nunca vão para a Vercel.
+
+Depois do **Redeploy**, conferimos o código publicado: o endereço da API está lá, e a API aceita o
+site. Sprint 2 concluído.

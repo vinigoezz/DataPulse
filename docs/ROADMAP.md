@@ -47,11 +47,11 @@ Regra do sprint: **nenhum código depende de um provedor específico** (ver `doc
 - [x] Preencher `backend/.env` com o banco e as chaves S3 do Supabase e rodar `make migrar`
 - [x] Preparar o deploy: `render.yaml`, migrações ao iniciar o container, CORS para as prévias da Vercel, `Frontend/vercel.json`
 - [x] Deploy da API no Render (container, plano grátis): https://datapulse-api-uqj2.onrender.com
-- [ ] Deploy do Frontend na Vercel com `VITE_API_URL` apontando para a API
+- [x] Deploy do Frontend na Vercel com `VITE_API_URL` apontando para a API: https://data-pulse-gamma.vercel.app
 - [ ] ~~Upload direto do navegador para o Storage~~: desnecessário com a API no Render (sem limite de 4,5 MB)
-- [ ] Segredos só nas variáveis de ambiente das hospedagens, nunca no repositório
+- [x] Segredos só nas variáveis de ambiente das hospedagens, nunca no repositório (`make render-segredos`)
 
-**Entrega:** o DataPulse acessível por uma URL pública, com os dados guardados no Supabase.
+**Entrega:** o DataPulse acessível por uma URL pública, com os dados guardados no Supabase. ✅ Concluído em 23/11/2026.
 
 ## Sprint 3 — Dados brasileiros e Explorador no servidor
 

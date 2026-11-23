@@ -2,6 +2,8 @@
 
 Análise de dados a partir de planilhas CSV.
 
+**No ar:** site https://data-pulse-gamma.vercel.app · API https://datapulse-api-uqj2.onrender.com/docs
+
 | Pasta | O que é |
 | --- | --- |
 | `Frontend/` | Landing page e aplicação web (TanStack Start + React, conectado ao Lovable) |
