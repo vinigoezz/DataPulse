@@ -46,7 +46,7 @@ Regra do sprint: **nenhum código depende de um provedor específico** (ver `doc
 - [x] Commitar os passos 1 e 2
 - [x] Preencher `backend/.env` com o banco e as chaves S3 do Supabase e rodar `make migrar`
 - [x] Preparar o deploy: `render.yaml`, migrações ao iniciar o container, CORS para as prévias da Vercel, `Frontend/vercel.json`
-- [ ] Deploy da API no Render (container, plano grátis)
+- [x] Deploy da API no Render (container, plano grátis): https://datapulse-api-uqj2.onrender.com
 - [ ] Deploy do Frontend na Vercel com `VITE_API_URL` apontando para a API
 - [ ] ~~Upload direto do navegador para o Storage~~: desnecessário com a API no Render (sem limite de 4,5 MB)
 - [ ] Segredos só nas variáveis de ambiente das hospedagens, nunca no repositório
