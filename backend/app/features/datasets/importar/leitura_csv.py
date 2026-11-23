@@ -10,6 +10,7 @@ import pandas as pd
 
 from app.features.datasets.errors import ArquivoInvalido
 from app.features.datasets.importar.datas import converter_datas
+from app.features.datasets.importar.numeros import convencao_preferida, converter_numeros
 
 EXTENSOES = (".csv", ".zip", ".gz")
 SEPARADORES = ",;\t|"
@@ -100,7 +101,9 @@ def ler_csv(
     separador = separador or detectar_separador(caminho, nome_original, encoding)
     try:
         with abrir_csv(caminho, nome_original) as stream:
-            df = pd.read_csv(stream, sep=separador, encoding=encoding)
+            # Tudo entra como texto: quem decide o que é número ou data somos nós, entendendo
+            # o formato brasileiro (o pandas leria "1.500" como 1,5).
+            df = pd.read_csv(stream, sep=separador, encoding=encoding, dtype="string")
     except UnicodeDecodeError as erro:
         raise ArquivoInvalido(
             f"Não foi possível ler o arquivo com a codificação {encoding}."
@@ -109,6 +112,8 @@ def ler_csv(
         raise ArquivoInvalido(f"Erro ao ler o CSV: {erro}") from erro
     except ERROS_DE_COMPACTACAO as erro:
         raise _arquivo_compactado_invalido(erro) from erro
+    # Números antes de datas: assim "2026" ou "15" nunca são confundidos com datas.
+    df = converter_numeros(df, convencao_preferida(separador))
     return normalizar_tipos(converter_datas(df)), separador, encoding
 
 

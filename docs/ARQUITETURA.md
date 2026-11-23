@@ -137,12 +137,17 @@ features.
 | POST | `/api/datasets/upload` | `Dataset` (201). Multipart: `file`, opcionais `description`, `separator`, `encoding` |
 | GET | `/api/datasets/{id}` | `Dataset` |
 | DELETE | `/api/datasets/{id}` | 204 |
-| GET | `/api/datasets/{id}/rows` | `PaginatedRows`. Parâmetros: `page` (começa em 1), `page_size` (máx. 1000), `search` (texto em qualquer coluna), `filters` (JSON `{"coluna": "valor exato"}`), `sort` (coluna), `order` (`asc`/`desc`). `total` conta as linhas filtradas. |
-| GET | `/api/datasets/{id}/stats` | `ColumnStats[]`. Colunas `categoria` trazem `values` (opções de filtro). |
+| GET | `/api/datasets/{id}/rows` | `PaginatedRows`. Parâmetros: `page` (começa em 1), `page_size` (máx. 1000), `search`, `filters` (JSON `{"coluna": "valor exato"}`), `ranges` (JSON `{"coluna": {"min": 100, "max": "2026-01-31"}}`, só colunas de número ou data; qualquer lado pode faltar; data sem hora inclui o dia inteiro), `sort` (coluna), `order` (`asc`/`desc`). `total` conta as linhas filtradas. Ordem: filtros → faixas → busca → ordenação → página. |
+| GET | `/api/datasets/{id}/stats` | `ColumnStats[]`. `type`: `texto`, `número`, `moeda`, `percentual` (valores em fração: 0,15 = 15%), `data` ou `categoria`. Colunas `categoria` trazem `values` (opções de filtro); as numéricas, `min`/`max`/`mean`. |
+
+**Busca (`search`)** depende do tipo da coluna: texto → "contém" (sem diferenciar maiúsculas);
+número → igual, se o termo for número (`45,50` ou `45.5`); data → mesmo dia, se o termo for data
+(`05/01/2026` ou `2026-01-05`). Não converter números e datas em texto mantém a busca rápida
+(~0,2 s com 1 milhão de linhas).
 
 Erros esperados respondem `{"detail": "mensagem"}`: 404 (dataset não existe), 413 (arquivo acima
 de `DATAPULSE_MAX_UPLOAD_MB`), 422 (arquivo ilegível, vazio, formato não suportado, ou
-busca/filtro com coluna inexistente). A
+busca/filtro/faixa com coluna inexistente ou valor inválido). A
 documentação interativa fica em `http://localhost:8000/docs` (a raiz `/` redireciona para lá).
 
 Ao mudar um contrato, altere juntos o modelo Python da fatia e `Frontend/src/features/datasets/types.ts`.
@@ -152,11 +157,16 @@ Ao mudar um contrato, altere juntos o modelo Python da fatia e `Frontend/src/fea
 1. O Frontend valida uma prévia no navegador (Papa Parse, só as primeiras linhas). Arquivos
    `.zip`/`.gz` não têm prévia: vão direto para a API.
 2. Ao concluir, envia o arquivo para `POST /api/datasets/upload`.
-3. A API copia o upload para `storage/tmp/` respeitando o limite de tamanho, detecta encoding
-   (utf-8 → latin-1) e separador (`, ; tab |`), lê com pandas e converte colunas de data.
-4. Os dados vão para `data.parquet` (preserva tipos e lê rápido) e os metadados para `meta.json`,
-   escritos numa pasta temporária e renomeados, para nunca aparecer um dataset pela metade.
-5. Leituras posteriores (linhas, estatísticas) usam um cache LRU dos últimos DataFrames.
+3. A API copia o upload para a pasta temporária do sistema respeitando o limite de tamanho,
+   detecta encoding (utf-8 → latin-1) e separador (`, ; tab |`) e lê **tudo como texto**.
+4. Converte, nesta ordem: **números** (`importar/numeros.py`: `1.234,56`, `1,234.56`, `R$`, `%`,
+   negativos contábeis; `1.500` segue a convenção do arquivo: brasileira se o separador for `;`;
+   códigos com zero à esquerda e números com 16+ dígitos ficam como texto) e depois **datas**
+   (`importar/datas.py`; texto só com dígitos nunca vira data). Colunas com R$ ou % ficam anotadas em
+   `df.attrs["datapulse_tipos"]`, que o Parquet preserva.
+5. Os dados vão para o armazenamento de arquivos (Parquet) e os metadados para o catálogo, nessa
+   ordem, para nunca aparecer um dataset sem dados.
+6. Leituras posteriores (linhas, estatísticas) usam um cache LRU dos últimos DataFrames.
 
 Hoje a importação é síncrona e o dataset já nasce `processado`.
 

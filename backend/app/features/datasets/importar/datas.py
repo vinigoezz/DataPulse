@@ -1,5 +1,6 @@
 """Detecção e conversão de colunas de data (dd/mm/aaaa, ISO e variações)."""
 
+import re
 import warnings
 
 import pandas as pd
@@ -8,6 +9,10 @@ import pandas as pd
 LIMIAR_DATA = 0.9
 # Linhas usadas para testar se uma coluna de texto contém datas.
 TAMANHO_AMOSTRA = 1000
+
+# Só dígitos ("00123", "2026") não é data: é código ou número. Sem esta regra, o formato
+# "mixed" do pandas lê "00123" como o ano 123.
+SO_DIGITOS = re.compile(r"^\d+$")
 
 # Formatos testados primeiro: com formato fixo o pandas converte milhões de linhas em segundos.
 FORMATOS_DATA = [
@@ -46,7 +51,7 @@ def converter_datas(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     for coluna in df.select_dtypes(include=["object", "string"]).columns:
         amostra = df[coluna].dropna().head(TAMANHO_AMOSTRA)
-        if amostra.empty:
+        if amostra.empty or amostra.astype("string").str.strip().str.fullmatch(SO_DIGITOS).any():
             continue
         formato = descobrir_formato(amostra)
         if formato is None:

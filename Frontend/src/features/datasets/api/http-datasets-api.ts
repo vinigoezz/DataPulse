@@ -1,5 +1,5 @@
 import { http } from "@/lib/http";
-import { activeFilters, type RowsQuery } from "../types";
+import { activeFilters, activeRanges, type RowsQuery, type ValueRange } from "../types";
 import type { DatasetsApi } from "./datasets-api";
 
 const BASE = "/api/datasets";
@@ -28,9 +28,21 @@ export function rowsSearchParams(query: RowsQuery): URLSearchParams {
   if (search) params.set("search", search);
   const filters = activeFilters(query.filters);
   if (Object.keys(filters).length) params.set("filters", JSON.stringify(filters));
+  const ranges = activeRanges(query.ranges);
+  if (Object.keys(ranges).length) params.set("ranges", JSON.stringify(toApiRanges(ranges)));
   if (query.sort) {
     params.set("sort", query.sort.column);
     params.set("order", query.sort.order);
   }
   return params;
+}
+
+/** {"min": "", "max": "10"} → {"max": "10"}: lados em aberto não são enviados. */
+function toApiRanges(ranges: Record<string, ValueRange>) {
+  return Object.fromEntries(
+    Object.entries(ranges).map(([column, { min, max }]) => [
+      column,
+      { ...(min !== "" && { min }), ...(max !== "" && { max }) },
+    ]),
+  );
 }

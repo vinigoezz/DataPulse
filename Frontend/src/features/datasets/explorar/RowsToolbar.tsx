@@ -1,7 +1,8 @@
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { formatNumber } from "@/lib/format";
-import { activeFilters, type ColumnStats } from "../types";
+import { activeFilters, activeRanges, type ColumnStats, type ValueRange } from "../types";
+import { describeRange } from "./range-input";
 
 interface Props {
   search: string;
@@ -9,6 +10,8 @@ interface Props {
   filters: Record<string, string>;
   columns: ColumnStats[];
   onClearFilter: (column: string) => void;
+  ranges: Record<string, ValueRange>;
+  onClearRange: (column: string) => void;
   total: number | undefined;
   fetching: boolean;
 }
@@ -19,10 +22,13 @@ export function RowsToolbar({
   filters,
   columns,
   onClearFilter,
+  ranges,
+  onClearRange,
   total,
   fetching,
 }: Props) {
-  const labelOf = (key: string) => columns.find((c) => c.key === key)?.label ?? key;
+  const columnOf = (key: string) => columns.find((c) => c.key === key);
+  const labelOf = (key: string) => columnOf(key)?.label ?? key;
   return (
     <div className="flex flex-col gap-2 border-b p-3 md:flex-row md:items-center">
       <div className="relative flex-1">
@@ -43,6 +49,17 @@ export function RowsToolbar({
           aria-label={`Remover filtro ${labelOf(column)}`}
         >
           {labelOf(column)}: {value} <X className="size-3" />
+        </button>
+      ))}
+      {Object.entries(activeRanges(ranges)).map(([column, range]) => (
+        <button
+          key={`faixa-${column}`}
+          onClick={() => onClearRange(column)}
+          className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-xs text-primary"
+          aria-label={`Remover faixa ${labelOf(column)}`}
+        >
+          {labelOf(column)}: {describeRange(range, columnOf(column)?.type ?? "número")}{" "}
+          <X className="size-3" />
         </button>
       ))}
       <span className="text-xs text-muted-foreground tabular md:ml-2" aria-live="polite">

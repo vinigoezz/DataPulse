@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from app.features.datasets.estatisticas.perfil import inferir_tipo
 
@@ -19,8 +20,11 @@ def test_endpoint_de_estatisticas(client, dataset_vendas):
     assert stats["filial"]["type"] == "categoria"
     assert stats["quantidade"]["type"] == "número"
     assert stats["quantidade"]["mean"] == 4
-    assert stats["receita"]["type"] == "texto"  # vírgula decimal: ainda não convertido
+    # "45,50" (vírgula decimal) vira número; o nome "receita" faz a coluna ser moeda.
+    assert stats["receita"]["type"] == "moeda"
     assert stats["receita"]["nulls"] == 1
+    assert (stats["receita"]["min"], stats["receita"]["max"]) == (15, 45.5)
+    assert stats["receita"]["mean"] == pytest.approx((45.5 + 20 + 15) / 3)
 
 
 def test_estatisticas_de_dataset_inexistente(client):

@@ -1,6 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency, formatNumber } from "@/lib/format";
+import { formatNumber } from "@/lib/format";
 import { isNumericColumn, type ColumnStats } from "../types";
+import { formatValue } from "./format-value";
 
 const MAX_CARDS = 4;
 
@@ -24,9 +25,7 @@ export function NumericSummary({ stats }: { stats: ColumnStats[] | undefined }) 
         const format = (v: number | null | undefined) =>
           v === null || v === undefined
             ? "—"
-            : s.type === "moeda"
-              ? formatCurrency(v)
-              : formatNumber(Math.round(v * 10) / 10);
+            : formatValue(s.type === "número" ? Math.round(v * 10) / 10 : v, s.type);
         return (
           <div key={s.key} className="surface-card p-4">
             <p className="text-xs text-muted-foreground">{s.label} · média</p>

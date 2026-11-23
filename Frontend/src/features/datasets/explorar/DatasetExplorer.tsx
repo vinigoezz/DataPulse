@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/layout/PageHeader";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useDatasetRows, useDatasetStats } from "../queries";
-import type { Dataset } from "../types";
+import type { Dataset, ValueRange } from "../types";
 import { ColumnProfile } from "./ColumnProfile";
 import { NumericSummary } from "./NumericSummary";
 import { Pagination } from "./Pagination";
@@ -43,6 +43,8 @@ export function DatasetExplorer({ dataset }: { dataset: Dataset }) {
   const page = rows.data;
   const setFilter = (column: string, value: string) =>
     setQuery((q) => refine(q, { filters: { ...q.filters, [column]: value } }));
+  const setRange = (column: string, range: ValueRange) =>
+    setQuery((q) => refine(q, { ranges: { ...q.ranges, [column]: range } }));
   const clearAll = () => {
     setSearchInput("");
     setQuery(INITIAL_QUERY);
@@ -59,6 +61,8 @@ export function DatasetExplorer({ dataset }: { dataset: Dataset }) {
           filters={query.filters}
           columns={columns ?? []}
           onClearFilter={(column) => setFilter(column, "")}
+          ranges={query.ranges}
+          onClearRange={(column) => setRange(column, { min: "", max: "" })}
           total={page?.total}
           fetching={rows.isFetching}
         />
@@ -90,6 +94,7 @@ export function DatasetExplorer({ dataset }: { dataset: Dataset }) {
               setQuery((q) => refine(q, { sort: nextSort(q.sort, column) }))
             }
             onFilter={setFilter}
+            onRange={setRange}
           />
         )}
 

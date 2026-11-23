@@ -6,9 +6,11 @@ from typing import Literal
 
 import pandas as pd
 
+from app.features.datasets.models import CHAVE_TIPOS
 from app.shared.api_model import ApiModel
 
-ColumnType = Literal["texto", "número", "moeda", "data", "categoria"]
+ColumnType = Literal["texto", "número", "moeda", "percentual", "data", "categoria"]
+TIPOS_NUMERICOS = ("número", "moeda", "percentual")
 
 
 class ColumnSchema(ApiModel):
@@ -26,7 +28,7 @@ class ColumnStats(ColumnSchema):
     values: list[str] | None = None  # só em colunas "categoria": as opções para filtrar
 
 
-# Colunas numéricas com estes nomes são exibidas como dinheiro.
+# Colunas numéricas sem R$ nos valores, mas com estes nomes, também são exibidas como dinheiro.
 PADRAO_MOEDA = re.compile(
     r"receita|valor|pre[cç]o|custo|faturamento|salario|salário|price|amount|revenue|cost",
     re.IGNORECASE,
@@ -35,12 +37,15 @@ PADRAO_MOEDA = re.compile(
 MAX_CATEGORIAS = 50
 
 
-def inferir_tipo(serie: pd.Series) -> ColumnType:
+def inferir_tipo(serie: pd.Series, anotado: str | None = None) -> ColumnType:
+    """Tipo da coluna. ``anotado`` vem da importação (R$ → "moeda", % → "percentual")."""
     if pd.api.types.is_bool_dtype(serie):
         return "categoria"
     if pd.api.types.is_datetime64_any_dtype(serie):
         return "data"
     if pd.api.types.is_numeric_dtype(serie):
+        if anotado in ("moeda", "percentual"):
+            return anotado
         return "moeda" if PADRAO_MOEDA.search(str(serie.name)) else "número"
     preenchidos = int(serie.notna().sum())
     distintos = int(serie.nunique())
@@ -51,7 +56,10 @@ def inferir_tipo(serie: pd.Series) -> ColumnType:
 
 
 def esquema(df: pd.DataFrame) -> list[ColumnSchema]:
-    return [ColumnSchema(key=c, label=c, type=inferir_tipo(df[c])) for c in df.columns]
+    anotacoes = df.attrs.get(CHAVE_TIPOS, {})
+    return [
+        ColumnSchema(key=c, label=c, type=inferir_tipo(df[c], anotacoes.get(c))) for c in df.columns
+    ]
 
 
 def _numero(valor) -> float | None:
@@ -70,7 +78,7 @@ def estatisticas(df: pd.DataFrame) -> list[ColumnStats]:
             nulls=int(serie.isna().sum()),
             distinct=int(serie.nunique()),
         )
-        if coluna.type in ("número", "moeda"):
+        if coluna.type in TIPOS_NUMERICOS:
             stats.min = _numero(serie.min())
             stats.max = _numero(serie.max())
             stats.mean = _numero(serie.mean())

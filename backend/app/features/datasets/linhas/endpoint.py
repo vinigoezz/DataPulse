@@ -5,7 +5,13 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Query
 
 from app.features.datasets.dependencies import RepositorioDep
-from app.features.datasets.linhas.consulta import ConsultaDeLinhas, Ordem, consultar, ler_filtros
+from app.features.datasets.linhas.consulta import (
+    ConsultaDeLinhas,
+    Ordem,
+    consultar,
+    ler_faixas,
+    ler_filtros,
+)
 from app.shared.api_model import ApiModel
 
 router = APIRouter()
@@ -31,6 +37,10 @@ def listar_linhas(
     filters: Annotated[
         str | None, Query(description='JSON com valores exatos, ex.: {"filial": "Recife"}')
     ] = None,
+    ranges: Annotated[
+        str | None,
+        Query(description='JSON com faixas de número ou data, ex.: {"receita": {"min": 100}}'),
+    ] = None,
     sort: Annotated[str | None, Query(description="Coluna usada na ordenação")] = None,
     order: Ordem = "asc",
 ) -> PaginatedRows:
@@ -39,6 +49,7 @@ def listar_linhas(
         tamanho=page_size,
         busca=search,
         filtros=ler_filtros(filters),
+        faixas=ler_faixas(ranges),
         ordenar_por=sort or None,
         ordem=order,
     )

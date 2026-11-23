@@ -14,6 +14,11 @@ from app.shared.api_model import ApiModel
 
 DatasetStatus = Literal["processado", "processando", "erro", "pendente"]
 
+# Anotação gravada junto com os dados (df.attrs, preservado pelo Parquet): a importação marca
+# colunas que tinham R$ ou % e as estatísticas usam isso para dar o tipo certo.
+# Formato: {"coluna": "moeda" | "percentual"}.
+CHAVE_TIPOS = "datapulse_tipos"
+
 
 class Dataset(ApiModel):
     """O que a API mostra sobre um dataset."""

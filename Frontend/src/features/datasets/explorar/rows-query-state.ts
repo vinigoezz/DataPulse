@@ -7,6 +7,7 @@ export const INITIAL_QUERY: RowsQuery = {
   pageSize: 25,
   search: "",
   filters: {},
+  ranges: {},
   sort: null,
 };
 

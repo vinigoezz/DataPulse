@@ -1,5 +1,11 @@
 import { cn } from "@/lib/utils";
-import { isNumericColumn, type ColumnStats, type Row, type RowsQuery } from "../types";
+import {
+  isNumericColumn,
+  type ColumnStats,
+  type Row,
+  type RowsQuery,
+  type ValueRange,
+} from "../types";
 import { CellValue } from "./CellValue";
 import { ColumnHeader } from "./ColumnHeader";
 
@@ -10,9 +16,18 @@ interface Props {
   query: RowsQuery;
   onToggleSort: (column: string) => void;
   onFilter: (column: string, value: string) => void;
+  onRange: (column: string, range: ValueRange) => void;
 }
 
-export function RowsTable({ columns, rows, firstRowNumber, query, onToggleSort, onFilter }: Props) {
+export function RowsTable({
+  columns,
+  rows,
+  firstRowNumber,
+  query,
+  onToggleSort,
+  onFilter,
+  onRange,
+}: Props) {
   return (
     <div className="max-h-[560px] overflow-auto">
       <table className="w-full text-sm">
@@ -25,8 +40,10 @@ export function RowsTable({ columns, rows, firstRowNumber, query, onToggleSort, 
                 column={c}
                 sortOrder={query.sort?.column === c.key ? query.sort.order : null}
                 filterValue={query.filters[c.key] ?? ""}
+                range={query.ranges[c.key]}
                 onToggleSort={() => onToggleSort(c.key)}
                 onFilter={(value) => onFilter(c.key, value)}
+                onRange={(range) => onRange(c.key, range)}
               />
             ))}
           </tr>

@@ -57,10 +57,13 @@ Regra do sprint: **nenhum código depende de um provedor específico** (ver `doc
 
 ## Sprint 3 — Dados brasileiros e Explorador no servidor
 
-- [ ] Ler `45,50` e `1.234,56` como número/moeda
+- [x] Ler `45,50`, `1.234,56`, `R$ 1.234,56` e `15%` como número, moeda e percentual
+- [x] Códigos (`00123`, CPF, CEP) continuam texto; corrigido: `00123` virava data
 - [x] Filtro, busca e ordenação no servidor em `/rows` (adiantado para o Sprint 1)
-- [ ] Busca e filtros rápidos em arquivos grandes (medir; índices ou DuckDB se preciso)
-- [ ] Testes com CSVs reais (latin-1, `;`, dd/mm/aaaa)
+- [x] Filtro por faixa (`ranges`) para números, moeda, percentual e datas, na API e no Explorador
+- [x] Medir com arquivos grandes: busca 20x mais rápida (3,4 s → 0,2 s com 1 milhão de linhas); DuckDB não foi necessário
+- [x] Testes com um CSV no formato do Excel brasileiro (latin-1, `;`, R$, %, dd/mm/aaaa)
+- [ ] Conferir no navegador o filtro por faixa (você)
 
 **Entrega:** Explorador rápido com arquivos grandes e colunas numéricas reconhecidas.
 

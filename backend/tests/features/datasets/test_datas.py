@@ -14,3 +14,8 @@ def test_converte_so_colunas_que_sao_quase_todas_datas():
     assert pd.api.types.is_datetime64_any_dtype(convertido["quando"])
     assert convertido["quando"].iloc[0].month == 2  # dia primeiro (formato brasileiro)
     assert not pd.api.types.is_datetime64_any_dtype(convertido["misto"])
+
+
+def test_codigos_so_com_digitos_nao_viram_data():
+    df = pd.DataFrame({"codigo": pd.Series(["00123", "00456", "00789"], dtype="string")})
+    assert converter_datas(df)["codigo"].tolist() == ["00123", "00456", "00789"]

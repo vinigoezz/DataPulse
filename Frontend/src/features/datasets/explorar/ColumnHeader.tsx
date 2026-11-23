@@ -2,18 +2,35 @@ import { ArrowDown, ArrowUp, ArrowUpDown, ListFilter } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { isNumericColumn, type ColumnStats, type SortOrder } from "../types";
+import {
+  isNumericColumn,
+  isRangeColumn,
+  type ColumnStats,
+  type SortOrder,
+  type ValueRange,
+} from "../types";
 import { COLUMN_ICON } from "./column-icons";
+import { RangeMenu } from "./RangeMenu";
 
 interface Props {
   column: ColumnStats;
   sortOrder: SortOrder | null;
   filterValue: string;
+  range: ValueRange | undefined;
   onToggleSort: () => void;
   onFilter: (value: string) => void;
+  onRange: (range: ValueRange) => void;
 }
 
-export function ColumnHeader({ column, sortOrder, filterValue, onToggleSort, onFilter }: Props) {
+export function ColumnHeader({
+  column,
+  sortOrder,
+  filterValue,
+  range,
+  onToggleSort,
+  onFilter,
+  onRange,
+}: Props) {
   const Icon = COLUMN_ICON[column.type];
   const numeric = isNumericColumn(column.type);
   const SortIcon = sortOrder === "asc" ? ArrowUp : sortOrder === "desc" ? ArrowDown : ArrowUpDown;
@@ -41,6 +58,9 @@ export function ColumnHeader({ column, sortOrder, filterValue, onToggleSort, onF
             className={cn("size-3", sortOrder ? "text-primary" : "text-muted-foreground/60")}
           />
         </button>
+        {isRangeColumn(column.type) && (
+          <RangeMenu label={column.label} type={column.type} value={range} onChange={onRange} />
+        )}
         {column.values && (
           <FilterMenu
             label={column.label}
