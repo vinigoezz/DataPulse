@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronsUpDown, LogOut, Moon, Settings, Sun, User } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,20 +14,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Logo } from "./Logo";
 import { NAV_ITEMS } from "./nav";
 import { useTheme } from "@/lib/theme";
-import { CURRENT_USER } from "@/mocks/datasets";
-import { toast } from "sonner";
 
 export function AppSidebar() {
   const { state, isMobile, setOpenMobile } = useSidebar();
@@ -80,57 +69,8 @@ export function AppSidebar() {
               <span>{theme === "dark" ? "Modo claro" : "Modo escuro"}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton size="lg" tooltip={CURRENT_USER.name}>
-                  <Avatar className="size-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg bg-gradient-brand text-xs font-semibold text-primary-foreground">
-                      {CURRENT_USER.initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="grid flex-1 text-left leading-tight">
-                    <span className="truncate text-sm font-medium">{CURRENT_USER.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {CURRENT_USER.role}
-                    </span>
-                  </span>
-                  <ChevronsUpDown className="ml-auto size-4" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <ProfileMenuContent side={isMobile ? "top" : "right"} />
-            </DropdownMenu>
-          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  );
-}
-
-export function ProfileMenuContent({ side = "bottom" }: { side?: "top" | "right" | "bottom" }) {
-  return (
-    <DropdownMenuContent side={side} align="end" className="w-60">
-      <DropdownMenuLabel className="font-normal">
-        <div className="text-sm font-medium">{CURRENT_USER.name}</div>
-        <div className="text-xs text-muted-foreground">{CURRENT_USER.email}</div>
-      </DropdownMenuLabel>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem asChild>
-        <Link to="/configuracoes">
-          <User /> Minha conta
-        </Link>
-      </DropdownMenuItem>
-      <DropdownMenuItem asChild>
-        <Link to="/configuracoes">
-          <Settings /> Configurações
-        </Link>
-      </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem
-        onSelect={() => toast.info("Autenticação disponível após integração com o backend.")}
-      >
-        <LogOut /> Sair
-      </DropdownMenuItem>
-    </DropdownMenuContent>
   );
 }

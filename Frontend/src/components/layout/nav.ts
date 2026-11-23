@@ -27,11 +27,11 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { title: "Visão Geral", to: "/", icon: LayoutGrid },
-  { title: "Dashboard", to: "/dashboard", icon: BarChart3 },
+  { title: "Dashboard", to: "/dashboard", icon: BarChart3, soon: true },
   { title: "Importar Dados", to: "/importar", icon: UploadCloud },
   { title: "Meus Datasets", to: "/datasets", icon: Database },
   { title: "Explorador de Dados", to: "/explorador", icon: Table2 },
-  { title: "Relatórios", to: "/relatorios", icon: FileText },
+  { title: "Relatórios", to: "/relatorios", icon: FileText, soon: true },
   { title: "Assistente IA", to: "/assistente", icon: Bot, soon: true },
   { title: "Configurações", to: "/configuracoes", icon: Settings },
 ];

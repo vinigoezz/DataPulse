@@ -4,9 +4,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { BackendNotice, PageHeader, Panel } from "@/components/layout/PageHeader";
+import { PageHeader, Panel } from "@/components/layout/PageHeader";
 import { formatNumber } from "@/lib/format";
-import { isDemoMode, useUploadDataset } from "../queries";
+import { useUploadDataset } from "../queries";
 import type { Dataset } from "../types";
 import { DropZone } from "./DropZone";
 import { ImportResult } from "./ImportResult";
@@ -18,7 +18,7 @@ type Stage =
   | { step: "selecionar" }
   | { step: "validar" }
   | { step: "previa"; file: File; preview: CsvPreview | null }
-  | { step: "concluido"; file: File; preview: CsvPreview | null; dataset: Dataset | null };
+  | { step: "concluido"; file: File; preview: CsvPreview | null; dataset: Dataset };
 
 const STEP_INDEX: Record<Stage["step"], number> = {
   selecionar: 0,
@@ -56,10 +56,6 @@ export function ImportPage() {
   };
 
   const finish = (file: File, preview: CsvPreview | null) => {
-    if (isDemoMode()) {
-      toast.warning("API não configurada", { description: "O arquivo não foi enviado." });
-      return setStage({ step: "concluido", file, preview, dataset: null });
-    }
     upload.mutate(
       { file, description: description.trim() },
       {
@@ -123,13 +119,6 @@ export function ImportPage() {
       )}
 
       {stage.step === "concluido" && <ImportResult dataset={stage.dataset} onRestart={restart} />}
-
-      {isDemoMode() && (
-        <BackendNotice>
-          Modo demonstração: sem <code className="font-mono">VITE_API_URL</code>, os arquivos são só
-          validados no navegador.
-        </BackendNotice>
-      )}
     </div>
   );
 }

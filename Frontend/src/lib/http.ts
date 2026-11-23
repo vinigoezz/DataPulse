@@ -1,10 +1,9 @@
 /**
  * Cliente HTTP central para a API FastAPI (backend/).
- * Com VITE_API_URL definido (ex.: http://localhost:8000) as features chamam a API;
- * sem ele, cada feature usa seus dados de demonstração.
+ * O endereço vem de VITE_API_URL (Frontend/.env.local em desenvolvimento; painel da Vercel em
+ * produção). Ele é gravado no código na hora do build.
  */
 export const API_URL: string | undefined = import.meta.env["VITE_API_URL"];
-export const isBackendConfigured = () => Boolean(API_URL);
 
 export class ApiError extends Error {
   constructor(
@@ -16,7 +15,7 @@ export class ApiError extends Error {
 }
 
 export async function http<T>(path: string, init?: RequestInit): Promise<T> {
-  if (!API_URL) throw new ApiError(0, "Backend não configurado (VITE_API_URL ausente).");
+  if (!API_URL) throw new ApiError(0, "Endereço da API não configurado (VITE_API_URL).");
   const res = await fetchOrNetworkError(`${API_URL}${path}`, {
     ...init,
     headers: { Accept: "application/json", ...(init?.headers ?? {}) },
@@ -42,5 +41,3 @@ async function errorMessage(res: Response, path: string): Promise<string> {
   }
   return `Erro ${res.status} ao acessar ${path}`;
 }
-
-export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

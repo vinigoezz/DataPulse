@@ -6,11 +6,10 @@
 flowchart LR
     U[Usuário] --> FE["Frontend<br/>(TanStack Start + React)"]
     FE -- "HTTP/JSON<br/>VITE_API_URL" --> API["backend/<br/>FastAPI"]
-    FE -. "sem VITE_API_URL" .-> MOCK["src/mocks<br/>(dados de demonstração)"]
     API --> FEAT["features/<br/>uma pasta por funcionalidade"]
     FEAT --> REPO["DatasetRepository"]
-    REPO --> DISK[("hoje: disco local<br/>Parquet + meta.json")]
-    REPO -. "Sprint 2" .-> SB[("Supabase<br/>Postgres + Storage")]
+    REPO --> SB[("Supabase<br/>Postgres + Storage (S3)")]
+    REPO -. "desenvolvimento/testes" .-> DISK[("pasta local<br/>Parquet + meta.json")]
 ```
 
 | Parte | Pasta | Papel |
@@ -19,9 +18,10 @@ flowchart LR
 | API | `backend/` | Recebe arquivos, trata e guarda os dados, serve linhas paginadas e estatísticas. |
 | Protótipo | `app.py` | App Streamlit original. Será aposentado quando o Frontend cobrir o mesmo fluxo (Sprint 4). |
 
-O Frontend nunca fala direto com dados: cada feature tem uma pasta `api/` com uma interface e duas
-implementações, a HTTP (usa `src/lib/http.ts`) e a de demonstração (usa `src/mocks/`). Com
-`VITE_API_URL` definido, as telas usam a API; sem ele, a demonstração (útil no preview do Lovable).
+O Frontend nunca fala direto com o banco: cada feature tem uma pasta `api/` com uma interface e a
+implementação HTTP (usa `src/lib/http.ts`, endereço em `VITE_API_URL`). **Não há dados de
+demonstração**: o site mostra só o que existe na API. Telas ainda não construídas usam o componente
+`ComingSoon` e aparecem com "Em breve" no menu (`soon: true` em `components/layout/nav.ts`).
 
 ## Hospedagem e portabilidade
 
@@ -107,14 +107,16 @@ Frontend/src/
 ├── features/datasets/
 │   ├── types.ts                # contratos (espelham o backend) e regras pequenas (canExplore...)
 │   ├── queries.ts              # React Query: chaves de cache e hooks (useDatasets, useRemoveDataset...)
-│   ├── api/                    # datasets-api.ts (interface), http-*, demo-*, query-rows (regras da demo)
+│   ├── api/                    # datasets-api.ts (interface) e http-datasets-api.ts
 │   ├── components/             # usados por mais de uma fatia (StatusBadge)
 │   ├── listar/                 # tela Meus Datasets
 │   ├── importar/               # tela Importar
-│   └── explorar/               # tela Explorador
+│   ├── explorar/               # tela Explorador
+│   └── resumo/                 # Visão Geral (página inicial): números e atividade recente
+├── features/configuracoes/     # tema e situação da conexão com a API
 ├── components/ui, components/layout   # visual compartilhado (shadcn + layout do app)
-├── lib/                        # utilidades sem regra de negócio (http, format, theme)
-└── mocks/                      # dados de demonstração
+├── components/charts/          # gráficos prontos (Recharts), guardados para o Dashboard (Sprint 4)
+└── lib/                        # utilidades sem regra de negócio (http, format, theme)
 ```
 
 Mesmas regras do backend: uma fatia não importa outra (o que é dividido sobe para a raiz da
@@ -123,8 +125,8 @@ feature); lógica que dá para testar sem tela fica em `.ts` ao lado do componen
 Nomes de pastas em português (iguais às fatias do backend); componentes e funções em inglês, como no
 restante do código gerado pelo Lovable.
 
-Dashboard, Relatórios e Configurações ainda estão em `routes/` com dados de demonstração e viram
-features nos sprints 4 e 5.
+Dashboard (Sprint 4), Relatórios (Sprint 5) e Assistente (Sprint 6) mostram "Em breve" até virarem
+features.
 
 ## Contrato da API
 

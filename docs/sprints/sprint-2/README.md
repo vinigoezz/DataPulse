@@ -12,6 +12,7 @@ mudar configurações, não reescrever o sistema.
 | 2 | [Conectar ao Supabase](02-conectar-supabase.md) | Preencher o `backend/.env` e criar as tabelas com `make migrar`. | Feito (trocar a senha do banco) |
 | 3 | [Deploy da API](03-deploy-api.md) | Colocar a API no ar no Render. | Feito: https://datapulse-api-uqj2.onrender.com |
 | 4 | [Deploy do site](04-deploy-site.md) | Colocar o site no ar na Vercel, apontando para a API. | Feito: https://data-pulse-gamma.vercel.app |
+| 5 | [Sem dados de exemplo](05-sem-dados-de-exemplo.md) | Tiramos tudo o que era inventado: o site mostra só os seus dados. | Feito |
 
 ## Resultado
 

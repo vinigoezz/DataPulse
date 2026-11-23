@@ -19,7 +19,7 @@ Cada passo concluído tem uma explicação em linguagem simples em `docs/sprints
 
 - [x] Frontend formatado com o Prettier (`make lint` sem erros; restam 11 avisos antigos nos componentes do Lovable)
 - [x] Frontend reorganizado em `src/features/datasets/{listar,importar,explorar}` (rotas viram casca fina)
-- [x] Camada de dados: `datasetsApi` (API ou demonstração) + React Query
+- [x] Camada de dados: `datasetsApi` + React Query (o modo demonstração foi removido no fim do Sprint 2)
 - [x] Datasets: listar, ver detalhe, apagar e abrir no Explorador pela API
 - [x] Explorador: linhas paginadas e estatísticas da API, com escolha de dataset pela URL
 - [x] Busca, filtro e ordenação **no servidor** (adiantado do Sprint 3: é a mesma fatia)
@@ -50,6 +50,8 @@ Regra do sprint: **nenhum código depende de um provedor específico** (ver `doc
 - [x] Deploy do Frontend na Vercel com `VITE_API_URL` apontando para a API: https://data-pulse-gamma.vercel.app
 - [ ] ~~Upload direto do navegador para o Storage~~: desnecessário com a API no Render (sem limite de 4,5 MB)
 - [x] Segredos só nas variáveis de ambiente das hospedagens, nunca no repositório (`make render-segredos`)
+
+- [x] Sem dados de exemplo: Visão Geral com números reais; Dashboard e Relatórios marcados "Em breve"; usuário e notificações fictícios removidos
 
 **Entrega:** o DataPulse acessível por uma URL pública, com os dados guardados no Supabase. ✅ Concluído em 23/11/2026.
 

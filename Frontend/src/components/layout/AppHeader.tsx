@@ -1,12 +1,9 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Bell, Moon, Search, Sun, UploadCloud } from "lucide-react";
+import { Moon, Search, Sun, UploadCloud } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   CommandDialog,
   CommandEmpty,
@@ -17,16 +14,8 @@ import {
 } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { NAV_ITEMS } from "./nav";
-import { ProfileMenuContent } from "./AppSidebar";
 import { useTheme } from "@/lib/theme";
-import { CURRENT_USER } from "@/mocks/datasets";
 import { useDatasets } from "@/features/datasets/queries";
-
-const NOTIFS = [
-  { t: "vendas_2026.csv processado", d: "Há 2 horas", tone: "bg-success" },
-  { t: "despesas_operacionais.csv em processamento", d: "Há 5 dias", tone: "bg-warning" },
-  { t: "Falha ao validar clientes_ativos.csv", d: "Há 2 semanas", tone: "bg-destructive" },
-];
 
 export function AppHeader() {
   const path = useRouterState({ select: (r) => r.location.pathname });
@@ -84,36 +73,6 @@ export function AppHeader() {
             <UploadCloud /> Importar
           </Link>
         </Button>
-        <Popover>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Notificações" className="relative">
-                  <Bell />
-                  <span className="absolute right-2 top-2 size-1.5 rounded-full bg-primary" />
-                </Button>
-              </PopoverTrigger>
-            </TooltipTrigger>
-            <TooltipContent>Notificações</TooltipContent>
-          </Tooltip>
-          <PopoverContent align="end" className="w-80 p-0">
-            <div className="border-b px-4 py-3 text-sm font-medium">
-              Notificações{" "}
-              <span className="ml-1 text-xs font-normal text-muted-foreground">(demonstração)</span>
-            </div>
-            <ul className="divide-y">
-              {NOTIFS.map((n) => (
-                <li key={n.t} className="flex gap-3 px-4 py-3 text-sm">
-                  <span className={`mt-1.5 size-2 shrink-0 rounded-full ${n.tone}`} />
-                  <div>
-                    <p>{n.t}</p>
-                    <p className="text-xs text-muted-foreground">{n.d}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </PopoverContent>
-        </Popover>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" onClick={toggle} aria-label="Alternar tema">
@@ -122,18 +81,6 @@ export function AppHeader() {
           </TooltipTrigger>
           <TooltipContent>{theme === "dark" ? "Modo claro" : "Modo escuro"}</TooltipContent>
         </Tooltip>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="ml-1 rounded-full" aria-label="Menu do perfil">
-              <Avatar className="size-8">
-                <AvatarFallback className="bg-gradient-brand text-xs font-semibold text-primary-foreground">
-                  {CURRENT_USER.initials}
-                </AvatarFallback>
-              </Avatar>
-            </button>
-          </DropdownMenuTrigger>
-          <ProfileMenuContent />
-        </DropdownMenu>
       </div>
 
       <CommandDialog open={open} onOpenChange={setOpen}>

@@ -5,7 +5,6 @@ import type { DatasetsApi } from "./datasets-api";
 const BASE = "/api/datasets";
 
 export const httpDatasetsApi: DatasetsApi = {
-  mode: "api",
   list: () => http(BASE),
   get: (id) => http(`${BASE}/${encodeURIComponent(id)}`),
   remove: (id) => http(`${BASE}/${encodeURIComponent(id)}`, { method: "DELETE" }),

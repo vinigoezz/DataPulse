@@ -9,7 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { isDemoMode, useRemoveDataset } from "../queries";
+import { useRemoveDataset } from "../queries";
 import type { Dataset } from "../types";
 
 export function RemoveDatasetDialog({
@@ -33,10 +33,8 @@ export function RemoveDatasetDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Remover dataset?</AlertDialogTitle>
           <AlertDialogDescription>
-            <span className="font-mono text-foreground">{dataset?.name}</span>{" "}
-            {isDemoMode()
-              ? "sairá desta lista de demonstração. Recarregar a página restaura a lista."
-              : "e todos os seus dados serão apagados. Essa ação não pode ser desfeita."}
+            <span className="font-mono text-foreground">{dataset?.name}</span> e todos os seus dados
+            serão apagados. Essa ação não pode ser desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

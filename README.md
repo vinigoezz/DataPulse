@@ -27,7 +27,7 @@ make         # lista todos os comandos
 ```
 
 Configuração da API por variáveis de ambiente: veja `backend/.env.example`. O Frontend lê
-`Frontend/.env.local` (criado pelo `make setup`); sem `VITE_API_URL` ele usa dados de demonstração.
+`Frontend/.env.local` (criado pelo `make setup`), onde `VITE_API_URL` aponta para a API.
 
 ### Protótipo Streamlit
 

@@ -48,5 +48,3 @@ export function useUploadDataset() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: datasetKeys.list() }),
   });
 }
-
-export const isDemoMode = () => datasetsApi.mode === "demo";

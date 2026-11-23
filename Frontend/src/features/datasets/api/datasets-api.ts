@@ -1,9 +1,7 @@
 import type { ColumnStats, Dataset, PaginatedRows, RowsQuery } from "../types";
 
-/** O que as telas de datasets precisam da fonte de dados, seja a API ou a demonstração. */
+/** O que as telas de datasets precisam da API. Uma interface permite trocar a fonte nos testes. */
 export interface DatasetsApi {
-  /** "demo" quando não há API configurada (VITE_API_URL ausente). */
-  readonly mode: "api" | "demo";
   list(): Promise<Dataset[]>;
   get(id: string): Promise<Dataset>;
   remove(id: string): Promise<void>;

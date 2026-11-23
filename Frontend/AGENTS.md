@@ -33,7 +33,6 @@ use the editor.
 
 ## Data Pulse architecture
 
-- Frontend only: no Lovable Cloud/backend; the FastAPI API lives in `../backend` (see `../docs/ARQUITETURA.md`). Code is organized in vertical slices under `src/features/<feature>/<slice>/`; route files in `src/routes/` stay thin. Each feature reaches data through its `api/` folder (HTTP via `src/lib/http.ts` when `VITE_API_URL` is set, demo data from `src/mocks/` otherwise) and React Query hooks in `queries.ts`. API contracts in `src/features/datasets/types.ts` mirror `backend/app/features/datasets/`; change both together.
-- Demo data is generated with a seeded PRNG (`src/mocks/rng.ts`) so numbers never change between reloads.
+- Frontend only: no Lovable Cloud/backend; the FastAPI API lives in `../backend` (see `../docs/ARQUITETURA.md`). Code is organized in vertical slices under `src/features/<feature>/<slice>/`; route files in `src/routes/` stay thin. Each feature reaches data through its `api/` folder (HTTP via `src/lib/http.ts` to `VITE_API_URL`; there is no demo/mock data) and React Query hooks in `queries.ts`. Pages not built yet use `ComingSoon` (`src/components/layout/PageHeader.tsx`) and `soon: true` in `nav.ts`. API contracts in `src/features/datasets/types.ts` mirror `backend/app/features/datasets/`; change both together.
 - Theme is a `.dark` class on `<html>` managed by `src/lib/theme.tsx` (dark default, persisted in localStorage) — no next-themes.
 - Recharts axes must be direct children of the chart (no fragments), or they silently don't render.

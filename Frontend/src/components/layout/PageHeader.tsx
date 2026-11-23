@@ -83,12 +83,44 @@ export function EmptyState({
   );
 }
 
-export function BackendNotice({ children }: { children: ReactNode }) {
+/** Funcionalidade ainda não construída: diz o que vai fazer e em qual sprint chega. */
+export function ComingSoon({
+  icon,
+  title,
+  description,
+  sprint,
+  features,
+  action,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  sprint: string;
+  features: string[];
+  action?: ReactNode;
+}) {
   return (
-    <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-foreground">
-      <span className="mt-1 size-1.5 shrink-0 rounded-full bg-warning" />
-      <span>{children}</span>
-    </div>
+    <section className="surface-card animate-enter mx-auto flex max-w-2xl flex-col items-center gap-5 px-6 py-12 text-center">
+      <div className="grid size-12 place-items-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
+        {icon}
+      </div>
+      <div className="space-y-2">
+        <span className="inline-flex rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+          Em breve · {sprint}
+        </span>
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <p className="mx-auto max-w-md text-sm text-muted-foreground">{description}</p>
+      </div>
+      <ul className="grid gap-2 text-left text-sm text-muted-foreground sm:grid-cols-2">
+        {features.map((feature) => (
+          <li key={feature} className="flex gap-2">
+            <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
+            {feature}
+          </li>
+        ))}
+      </ul>
+      {action}
+    </section>
   );
 }
 

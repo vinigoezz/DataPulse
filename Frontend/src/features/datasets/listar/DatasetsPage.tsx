@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState, PageHeader } from "@/components/layout/PageHeader";
-import { isDemoMode, useDatasets } from "../queries";
+import { useDatasets } from "../queries";
 import type { Dataset } from "../types";
 import { DatasetDetailSheet } from "./DatasetDetailSheet";
 import { DatasetsGrid } from "./DatasetsGrid";
@@ -102,8 +102,7 @@ export function DatasetsPage() {
 }
 
 function describe(count: number) {
-  const total = `${count} ${count === 1 ? "conjunto de dados" : "conjuntos de dados"}`;
-  return isDemoMode() ? `${total} · demonstração (API não configurada)` : total;
+  return `${count} ${count === 1 ? "conjunto de dados" : "conjuntos de dados"}`;
 }
 
 function LoadingList() {
