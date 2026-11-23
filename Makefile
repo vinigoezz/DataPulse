@@ -6,7 +6,7 @@ PY := $(CURDIR)/$(VENV)/bin/python
 API_PORT ?= 8000
 
 .DEFAULT_GOAL := help
-.PHONY: help setup dev api web test test-integracao servicos servicos-parar migrar lint format
+.PHONY: help setup dev api web test test-integracao servicos servicos-parar migrar render-segredos lint format
 
 help: ## Mostra os comandos disponíveis
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-16s %s\n", $$1, $$2}'
@@ -47,6 +47,9 @@ servicos-parar: ## Desliga os serviços do Docker
 
 migrar: ## Prepara o banco e o bucket configurados em backend/.env (cria tabelas que faltam)
 	cd backend && $(PY) -m app.preparar
+
+render-segredos: ## Testa os segredos do backend/.env e, se funcionarem, envia ao Render e faz deploy
+	cd backend && $(PY) -m scripts.render_segredos
 
 lint: ## Confere a qualidade do código (ruff na API, eslint no Frontend)
 	cd backend && $(PY) -m ruff check . && $(PY) -m ruff format --check .

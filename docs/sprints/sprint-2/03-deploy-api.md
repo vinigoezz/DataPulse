@@ -65,3 +65,30 @@ terminando em `/postgres`. Depois clique em **Save, rebuild and deploy**.
 
 **Melhoria feita:** agora a API reconhece esse engano e avisa "foi colada mais de uma linha", em
 vez da mensagem cortada do banco.
+
+## A segunda falha: senha recusada, e como acabamos com o copia-e-cola
+
+Log: `FATAL: password authentication failed for user "postgres"`.
+
+**Causa:** a senha do banco tinha sido trocada no Supabase, e a do `backend/.env` ficou
+desatualizada. O mesmo erro acontecia no Codespaces. O Render só recebeu a mesma senha errada.
+
+**A solução definitiva: `make render-segredos`.** Copiar senhas à mão para um painel tem dois
+jeitos de dar errado: copiar errado e copiar algo que já não vale. O comando novo resolve os dois:
+
+1. **Testa** o banco e as chaves S3 do `backend/.env`, conectando de verdade.
+2. Se algo falhar, **para e explica**, sem enviar nada.
+3. Se tudo funcionar, **envia** os 3 segredos ao Render pela API dele (sem copiar e colar) e
+   **inicia um deploy novo**.
+
+Nenhum valor secreto aparece na tela. A regra passa a ser: **o `backend/.env` é a única fonte da
+verdade**. Mudou a senha? Atualize o `.env` e rode `make render-segredos`.
+
+Para usar, o `backend/.env` precisa de mais duas linhas (o arquivo já tem as duas; falta preencher a chave):
+
+| Linha | De onde vem |
+| --- | --- |
+| `RENDER_API_KEY` | Render → seu avatar → **Account Settings** → **API Keys** → **Create API Key** |
+| `RENDER_SERVICE_ID` | O código `srv-...` no endereço do serviço no painel. O seu já está preenchido. |
+
+A chave da API do Render é uma senha: fica só no `backend/.env`, que não vai para o GitHub.

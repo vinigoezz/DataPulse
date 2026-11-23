@@ -18,6 +18,7 @@ mudar configurações, não reescrever o sistema.
 | Comando | O que faz |
 | --- | --- |
 | `make migrar` | Cria no banco as tabelas que faltam e o "balde" de arquivos. Pode rodar quantas vezes quiser. |
+| `make render-segredos` | Testa os segredos do `backend/.env` e, se funcionarem, envia ao Render e faz um deploy novo. |
 | `make servicos` | Liga um Postgres e um S3 **de mentira** no seu computador (Docker). |
 | `make test-integracao` | Roda os testes também contra esse Postgres e esse S3. |
 | `make servicos-parar` | Desliga os serviços do Docker. |
