@@ -30,7 +30,7 @@ services:
         value: us-east-2
       # O site na Vercel (produção e prévias) pode chamar a API.
       - key: DATAPULSE_CORS_ORIGIN_REGEX
-        value: https://datapulse(-[a-z0-9-]+)?\.vercel\.app
+        value: https://data-?pulse(-[a-z0-9-]+)?\.vercel\.app
       # O plano grátis tem 512 MB de memória: arquivos grandes não cabem.
       - key: DATAPULSE_MAX_UPLOAD_MB
         value: "25"
