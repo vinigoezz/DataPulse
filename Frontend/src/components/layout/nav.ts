@@ -27,7 +27,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { title: "Visão Geral", to: "/", icon: LayoutGrid },
-  { title: "Dashboard", to: "/dashboard", icon: BarChart3, soon: true },
+  { title: "Dashboard", to: "/dashboard", icon: BarChart3 },
   { title: "Importar Dados", to: "/importar", icon: UploadCloud },
   { title: "Meus Datasets", to: "/datasets", icon: Database },
   { title: "Explorador de Dados", to: "/explorador", icon: Table2 },

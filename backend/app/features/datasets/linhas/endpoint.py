@@ -5,13 +5,8 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Query
 
 from app.features.datasets.dependencies import RepositorioDep
-from app.features.datasets.linhas.consulta import (
-    ConsultaDeLinhas,
-    Ordem,
-    consultar,
-    ler_faixas,
-    ler_filtros,
-)
+from app.features.datasets.filtragem import ler_faixas, ler_filtros
+from app.features.datasets.linhas.consulta import ConsultaDeLinhas, Ordem, consultar
 from app.shared.api_model import ApiModel
 
 router = APIRouter()

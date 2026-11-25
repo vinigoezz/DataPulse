@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rowsSearchParams } from "./http-datasets-api";
+import { aggregateSearchParams, rowsSearchParams } from "./http-datasets-api";
 
 describe("rowsSearchParams", () => {
   it("envia só o que foi escolhido", () => {
@@ -31,5 +31,36 @@ describe("rowsSearchParams", () => {
     });
     expect(params.get("sort")).toBe("receita");
     expect(params.get("order")).toBe("desc");
+  });
+});
+
+describe("aggregateSearchParams", () => {
+  it("envia medida, agrupamento, intervalo, limite e filtros", () => {
+    const params = aggregateSearchParams({
+      measure: "total",
+      groupBy: "data",
+      interval: "mes",
+      limit: 10,
+      filters: { filial: "Recife" },
+      ranges: { data: { min: "2026-01-01", max: "" } },
+    });
+    expect(params.get("measure")).toBe("total");
+    expect(params.get("group_by")).toBe("data");
+    expect(params.get("interval")).toBe("mes");
+    expect(params.get("limit")).toBe("10");
+    expect(JSON.parse(params.get("filters") ?? "")).toEqual({ filial: "Recife" });
+    expect(JSON.parse(params.get("ranges") ?? "")).toEqual({ data: { min: "2026-01-01" } });
+  });
+
+  it("sem medida nem agrupamento, só o necessário", () => {
+    const params = aggregateSearchParams({
+      measure: null,
+      groupBy: null,
+      interval: "mes",
+      limit: 10,
+      filters: {},
+      ranges: {},
+    });
+    expect(params.toString()).toBe("interval=mes&limit=10");
   });
 });

@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { datasetsApi } from "./api";
-import type { RowsQuery } from "./types";
+import type { AggregateQuery, RowsQuery } from "./types";
 
 /** Chaves do cache do React Query: invalidar `all` atualiza tudo de datasets. */
 export const datasetKeys = {
@@ -9,6 +9,8 @@ export const datasetKeys = {
   detail: (id: string) => [...datasetKeys.all, "detail", id] as const,
   rows: (id: string, query: RowsQuery) => [...datasetKeys.all, "rows", id, query] as const,
   stats: (id: string) => [...datasetKeys.all, "stats", id] as const,
+  aggregate: (id: string, query: AggregateQuery) =>
+    [...datasetKeys.all, "aggregate", id, query] as const,
 };
 
 export function useDatasets() {
@@ -30,6 +32,14 @@ export function useDatasetRows(id: string, query: RowsQuery) {
 
 export function useDatasetStats(id: string) {
   return useQuery({ queryKey: datasetKeys.stats(id), queryFn: () => datasetsApi.stats(id) });
+}
+
+export function useDatasetAggregate(id: string, query: AggregateQuery) {
+  return useQuery({
+    queryKey: datasetKeys.aggregate(id, query),
+    queryFn: () => datasetsApi.aggregate(id, query),
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useRemoveDataset() {

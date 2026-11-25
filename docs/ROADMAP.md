@@ -69,9 +69,13 @@ Regra do sprint: **nenhum código depende de um provedor específico** (ver `doc
 
 ## Sprint 4 — Dashboard real
 
-- [ ] Fatias de agregação na API: KPIs, série mensal, agrupamentos (hoje em `src/lib/analytics.ts`)
-- [ ] Dashboard com escolha de dataset, colunas e período
-- [ ] Aposentar o protótipo Streamlit (`app.py`)
+- [x] Fatia de agregação na API (`agregar/`): geral, por período e por categoria, com filtros e faixas
+- [x] Filtros compartilhados entre linhas e agregação (`datasets/filtragem.py`)
+- [x] Dashboard com escolha de dataset, medida, cálculo, data, intervalo, período e comparação
+- [x] Gráficos do Lovable viraram genéricos (`TrendChart`, `BarListChart`, `DonutChart`)
+- [x] Aposentar o protótipo Streamlit (`app.py`)
+- [ ] Conferir o Dashboard no navegador (você)
+- [ ] Depois, se fizer falta: histograma e gráfico de dispersão (existiam no Streamlit)
 
 **Entrega:** dashboard de qualquer dataset importado.
 

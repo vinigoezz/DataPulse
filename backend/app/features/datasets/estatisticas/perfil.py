@@ -26,6 +26,8 @@ class ColumnStats(ColumnSchema):
     max: float | None = None
     mean: float | None = None
     values: list[str] | None = None  # só em colunas "categoria": as opções para filtrar
+    start: str | None = None  # só em colunas "data": a primeira e a última (ISO)
+    end: str | None = None
 
 
 # Colunas numéricas sem R$ nos valores, mas com estes nomes, também são exibidas como dinheiro.
@@ -82,6 +84,9 @@ def estatisticas(df: pd.DataFrame) -> list[ColumnStats]:
             stats.min = _numero(serie.min())
             stats.max = _numero(serie.max())
             stats.mean = _numero(serie.mean())
+        if coluna.type == "data" and serie.notna().any():
+            stats.start = serie.min().isoformat()
+            stats.end = serie.max().isoformat()
         if coluna.type == "categoria":
             stats.values = sorted(serie.dropna().astype("string").unique().tolist())
         resultado.append(stats)

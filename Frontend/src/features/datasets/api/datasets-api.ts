@@ -1,4 +1,11 @@
-import type { ColumnStats, Dataset, PaginatedRows, RowsQuery } from "../types";
+import type {
+  AggregateQuery,
+  Aggregation,
+  ColumnStats,
+  Dataset,
+  PaginatedRows,
+  RowsQuery,
+} from "../types";
 
 /** O que as telas de datasets precisam da API. Uma interface permite trocar a fonte nos testes. */
 export interface DatasetsApi {
@@ -7,5 +14,6 @@ export interface DatasetsApi {
   remove(id: string): Promise<void>;
   rows(id: string, query: RowsQuery): Promise<PaginatedRows>;
   stats(id: string): Promise<ColumnStats[]>;
+  aggregate(id: string, query: AggregateQuery): Promise<Aggregation>;
   upload(file: File, description?: string): Promise<Dataset>;
 }

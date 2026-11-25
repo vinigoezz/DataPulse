@@ -14,9 +14,8 @@ flowchart LR
 
 | Parte | Pasta | Papel |
 | --- | --- | --- |
-| Frontend | `Frontend/` | Landing page e aplicação (dashboard, datasets, importação, explorador). Projeto conectado ao Lovable. |
+| Frontend | `Frontend/` | Aplicação (visão geral, dashboard, datasets, importação, explorador). Projeto conectado ao Lovable. |
 | API | `backend/` | Recebe arquivos, trata e guarda os dados, serve linhas paginadas e estatísticas. |
-| Protótipo | `app.py` | App Streamlit original. Será aposentado quando o Frontend cobrir o mesmo fluxo (Sprint 4). |
 
 O Frontend nunca fala direto com o banco: cada feature tem uma pasta `api/` com uma interface e a
 implementação HTTP (usa `src/lib/http.ts`, endereço em `VITE_API_URL`). **Não há dados de
@@ -67,6 +66,7 @@ backend/app/
         ├── models.py          # Dataset e DatasetMeta (usados por várias fatias)
         ├── errors.py          # DatasetNaoEncontrado, ArquivoInvalido, ArquivoMuitoGrande
         ├── catalogo/          # porta do catálogo: arquivos_json.py, postgres.py
+        ├── filtragem.py       # filtros exatos e faixas (usados por linhas/ e agregar/)
         ├── repository.py      # junta catálogo + arquivos (+ cache); é o que as fatias usam
         ├── dependencies.py    # monta o repositório conforme a configuração
         ├── importar/          # POST /upload → endpoint, caso_de_uso, leitura_csv, datas
@@ -74,7 +74,8 @@ backend/app/
         ├── obter/             # GET  /{id}
         ├── remover/           # DELETE /{id}
         ├── linhas/            # GET  /{id}/rows → endpoint, consulta
-        └── estatisticas/      # GET  /{id}/stats → endpoint, perfil
+        ├── estatisticas/      # GET  /{id}/stats → endpoint, perfil
+        └── agregar/           # GET  /{id}/aggregate → endpoint, agregacao (Dashboard)
 ```
 
 Regras:
@@ -108,14 +109,15 @@ Frontend/src/
 │   ├── types.ts                # contratos (espelham o backend) e regras pequenas (canExplore...)
 │   ├── queries.ts              # React Query: chaves de cache e hooks (useDatasets, useRemoveDataset...)
 │   ├── api/                    # datasets-api.ts (interface) e http-datasets-api.ts
-│   ├── components/             # usados por mais de uma fatia (StatusBadge)
+│   ├── components/             # usados por mais de uma fatia (StatusBadge, DatasetPicker, DatasetPage)
 │   ├── listar/                 # tela Meus Datasets
 │   ├── importar/               # tela Importar
 │   ├── explorar/               # tela Explorador
-│   └── resumo/                 # Visão Geral (página inicial): números e atividade recente
+│   ├── resumo/                 # Visão Geral (página inicial): números e atividade recente
+│   └── painel/                 # Dashboard: dashboard-config.ts (regras) + painéis
 ├── features/configuracoes/     # tema e situação da conexão com a API
 ├── components/ui, components/layout   # visual compartilhado (shadcn + layout do app)
-├── components/charts/          # gráficos prontos (Recharts), guardados para o Dashboard (Sprint 4)
+├── components/charts/          # gráficos genéricos (Recharts): TrendChart, BarListChart, DonutChart
 └── lib/                        # utilidades sem regra de negócio (http, format, theme)
 ```
 
@@ -125,8 +127,7 @@ feature); lógica que dá para testar sem tela fica em `.ts` ao lado do componen
 Nomes de pastas em português (iguais às fatias do backend); componentes e funções em inglês, como no
 restante do código gerado pelo Lovable.
 
-Dashboard (Sprint 4), Relatórios (Sprint 5) e Assistente (Sprint 6) mostram "Em breve" até virarem
-features.
+Relatórios (Sprint 5) e Assistente (Sprint 6) mostram "Em breve" até virarem features.
 
 ## Contrato da API
 
@@ -138,7 +139,8 @@ features.
 | GET | `/api/datasets/{id}` | `Dataset` |
 | DELETE | `/api/datasets/{id}` | 204 |
 | GET | `/api/datasets/{id}/rows` | `PaginatedRows`. Parâmetros: `page` (começa em 1), `page_size` (máx. 1000), `search`, `filters` (JSON `{"coluna": "valor exato"}`), `ranges` (JSON `{"coluna": {"min": 100, "max": "2026-01-31"}}`, só colunas de número ou data; qualquer lado pode faltar; data sem hora inclui o dia inteiro), `sort` (coluna), `order` (`asc`/`desc`). `total` conta as linhas filtradas. Ordem: filtros → faixas → busca → ordenação → página. |
-| GET | `/api/datasets/{id}/stats` | `ColumnStats[]`. `type`: `texto`, `número`, `moeda`, `percentual` (valores em fração: 0,15 = 15%), `data` ou `categoria`. Colunas `categoria` trazem `values` (opções de filtro); as numéricas, `min`/`max`/`mean`. |
+| GET | `/api/datasets/{id}/stats` | `ColumnStats[]`. `type`: `texto`, `número`, `moeda`, `percentual` (valores em fração: 0,15 = 15%), `data` ou `categoria`. Colunas `categoria` trazem `values` (opções de filtro); as numéricas, `min`/`max`/`mean`; as de `data`, `start`/`end` (ISO). |
+| GET | `/api/datasets/{id}/aggregate` | `Aggregation` = `{overall, groups, other}`, cada um com `count`, `sum`, `mean`, `min`, `max` (só `count` sem medida). Parâmetros: `measure` (coluna numérica), `group_by` (data → períodos em ordem; texto → categorias da maior para a menor), `interval` (`dia`/`semana`/`mes`/`trimestre`/`ano`; máx. 1000 períodos), `limit` (categorias, 1–50; o resto vai em `other`), `filters`, `ranges`. `key` do grupo: nome da categoria (vazios = `(vazio)`) ou início do período (`2026-01-01`). |
 
 **Busca (`search`)** depende do tipo da coluna: texto → "contém" (sem diferenciar maiúsculas);
 número → igual, se o termo for número (`45,50` ou `45.5`); data → mesmo dia, se o termo for data

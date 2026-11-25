@@ -32,6 +32,9 @@ export interface ColumnStats extends ColumnSchema {
   mean?: number | null;
   /** Só em colunas "categoria": os valores possíveis, para filtrar. */
   values?: string[] | null;
+  /** Só em colunas "data": a primeira e a última (ISO). */
+  start?: string | null;
+  end?: string | null;
 }
 
 export type Row = Record<string, unknown>;
@@ -56,6 +59,40 @@ export interface RowsQuery {
   filters: Record<string, string>; // coluna -> valor exato
   ranges: Record<string, ValueRange>; // coluna -> entre mínimo e máximo
   sort: { column: string; order: SortOrder } | null;
+}
+
+export type Interval = "dia" | "semana" | "mes" | "trimestre" | "ano";
+
+/** Parâmetros de GET /api/datasets/{id}/aggregate. */
+export interface AggregateQuery {
+  /** Coluna numérica; null conta linhas. */
+  measure: string | null;
+  /** Coluna de data (períodos) ou de texto/categoria; null só traz o geral. */
+  groupBy: string | null;
+  interval: Interval;
+  limit: number;
+  filters: Record<string, string>;
+  ranges: Record<string, ValueRange>;
+}
+
+export interface Summary {
+  count: number;
+  sum: number | null;
+  mean: number | null;
+  min: number | null;
+  max: number | null;
+}
+
+export interface Group extends Summary {
+  /** Nome da categoria, ou início do período em ISO (2026-01-01). */
+  key: string;
+}
+
+export interface Aggregation {
+  overall: Summary;
+  groups: Group[];
+  /** Categorias além do limite, somadas. */
+  other: Summary | null;
 }
 
 export interface PaginatedRows {
