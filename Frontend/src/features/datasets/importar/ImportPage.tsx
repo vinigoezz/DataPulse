@@ -43,8 +43,7 @@ export function ImportPage() {
     setError(null);
     const reason = rejectReason(file);
     if (reason) return setError(reason);
-    if (fileKind(file.name) === "compressed")
-      return setStage({ step: "previa", file, preview: null });
+    if (fileKind(file.name) !== "csv") return setStage({ step: "previa", file, preview: null });
 
     setStage({ step: "validar" });
     try {

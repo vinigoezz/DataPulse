@@ -1,6 +1,6 @@
 # DataPulse
 
-Análise de dados a partir de planilhas CSV.
+Análise de dados a partir de planilhas CSV e Excel.
 
 **No ar:** site https://data-pulse-gamma.vercel.app · API https://datapulse-api-uqj2.onrender.com/docs
 

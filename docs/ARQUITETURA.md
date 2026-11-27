@@ -69,7 +69,7 @@ backend/app/
         ├── filtragem.py       # filtros exatos e faixas (usados por linhas/ e agregar/)
         ├── repository.py      # junta catálogo + arquivos (+ cache); é o que as fatias usam
         ├── dependencies.py    # monta o repositório conforme a configuração
-        ├── importar/          # POST /upload → endpoint, caso_de_uso, leitura_csv, datas
+        ├── importar/          # POST /upload → endpoint, caso_de_uso, leitura (csv/excel), tipos, numeros, datas
         ├── listar/            # GET  /
         ├── obter/             # GET  /{id}
         ├── remover/           # DELETE /{id}
@@ -135,7 +135,7 @@ Relatórios (Sprint 5) e Assistente (Sprint 6) mostram "Em breve" até virarem f
 | --- | --- | --- |
 | GET | `/api/health` | `{status, version}` |
 | GET | `/api/datasets` | `Dataset[]` (mais recentes primeiro) |
-| POST | `/api/datasets/upload` | `Dataset` (201). Multipart: `file`, opcionais `description`, `separator`, `encoding` |
+| POST | `/api/datasets/upload` | `Dataset` (201). Multipart: `file` (`.csv`, `.xlsx`, `.zip` ou `.gz`), opcionais `description`, `separator`, `encoding` (só CSV). Excel: primeira aba. |
 | GET | `/api/datasets/{id}` | `Dataset` |
 | DELETE | `/api/datasets/{id}` | 204 |
 | GET | `/api/datasets/{id}/rows` | `PaginatedRows`. Parâmetros: `page` (começa em 1), `page_size` (máx. 1000), `search`, `filters` (JSON `{"coluna": "valor exato"}`), `ranges` (JSON `{"coluna": {"min": 100, "max": "2026-01-31"}}`, só colunas de número ou data; qualquer lado pode faltar; data sem hora inclui o dia inteiro), `sort` (coluna), `order` (`asc`/`desc`). `total` conta as linhas filtradas. Ordem: filtros → faixas → busca → ordenação → página. |

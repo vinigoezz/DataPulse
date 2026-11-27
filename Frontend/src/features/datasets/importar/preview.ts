@@ -2,9 +2,10 @@ import Papa from "papaparse";
 
 export const PREVIEW_ROWS = 20;
 export const MAX_UPLOAD_BYTES = 200 * 1024 * 1024; // mesmo padrão de DATAPULSE_MAX_UPLOAD_MB
-export const ACCEPTED_EXTENSIONS = ".csv,.zip,.gz";
+export const ACCEPTED_EXTENSIONS = ".csv,.xlsx,.zip,.gz";
 
-export type FileKind = "csv" | "compressed" | "unsupported";
+/** Só CSV tem prévia no navegador; Excel e compactados são lidos pela API. */
+export type FileKind = "csv" | "excel" | "compressed" | "unsupported";
 
 export interface CsvPreview {
   headers: string[];
@@ -15,14 +16,17 @@ export interface CsvPreview {
 export function fileKind(name: string): FileKind {
   const lower = name.toLowerCase();
   if (lower.endsWith(".csv")) return "csv";
+  if (lower.endsWith(".xlsx")) return "excel";
   if (lower.endsWith(".zip") || lower.endsWith(".gz")) return "compressed";
   return "unsupported";
 }
 
 /** Motivo para recusar o arquivo antes de qualquer leitura, ou null se ele pode seguir. */
 export function rejectReason(file: File): string | null {
+  if (file.name.toLowerCase().endsWith(".xls"))
+    return "O formato .xls (Excel antigo) não é aceito. Abra no Excel e use Salvar como → .xlsx.";
   if (fileKind(file.name) === "unsupported")
-    return "Formato não suportado. Selecione um arquivo .csv, .zip ou .gz.";
+    return "Formato não suportado. Selecione um arquivo .csv, .xlsx, .zip ou .gz.";
   if (file.size === 0) return "O arquivo está vazio.";
   if (file.size > MAX_UPLOAD_BYTES)
     return "O arquivo passa de 200 MB. Compacte-o em .zip ou .gz e tente de novo.";

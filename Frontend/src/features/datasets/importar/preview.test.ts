@@ -8,7 +8,8 @@ describe("fileKind", () => {
     expect(fileKind("vendas.CSV")).toBe("csv");
     expect(fileKind("vendas.zip")).toBe("compressed");
     expect(fileKind("vendas.csv.gz")).toBe("compressed");
-    expect(fileKind("planilha.xlsx")).toBe("unsupported");
+    expect(fileKind("planilha.XLSX")).toBe("excel");
+    expect(fileKind("planilha.ods")).toBe("unsupported");
   });
 });
 
@@ -16,10 +17,12 @@ describe("rejectReason", () => {
   it("aceita CSV e compactados com conteúdo", () => {
     expect(rejectReason(file("ok.csv"))).toBeNull();
     expect(rejectReason(file("ok.zip"))).toBeNull();
+    expect(rejectReason(file("ok.xlsx"))).toBeNull();
   });
 
   it("recusa formato errado e arquivo vazio", () => {
-    expect(rejectReason(file("planilha.xlsx"))).toMatch(/Formato não suportado/);
+    expect(rejectReason(file("planilha.ods"))).toMatch(/Formato não suportado/);
+    expect(rejectReason(file("antiga.xls"))).toMatch(/Salvar como → \.xlsx/);
     expect(rejectReason(file("vazio.csv", ""))).toMatch(/vazio/);
   });
 });

@@ -1,4 +1,4 @@
-"""Leitura do arquivo enviado: CSV puro, .zip ou .gz, com encoding e separador detectados."""
+"""Leitura de CSV puro, .zip ou .gz, com encoding e separador detectados."""
 
 import csv
 import gzip
@@ -9,8 +9,8 @@ from typing import IO
 import pandas as pd
 
 from app.features.datasets.errors import ArquivoInvalido
-from app.features.datasets.importar.datas import converter_datas
-from app.features.datasets.importar.numeros import convencao_preferida, converter_numeros
+from app.features.datasets.importar.numeros import convencao_preferida
+from app.features.datasets.importar.tipos import tratar_tipos
 
 EXTENSOES = (".csv", ".zip", ".gz")
 SEPARADORES = ",;\t|"
@@ -20,10 +20,6 @@ ENCODINGS = ("utf-8", "latin-1")
 BYTES_AMOSTRA = 64 * 1024
 # Erros que o Python levanta quando um .zip/.gz está corrompido.
 ERROS_DE_COMPACTACAO = (gzip.BadGzipFile, EOFError, zipfile.BadZipFile)
-
-
-def extensao_valida(nome: str) -> bool:
-    return nome.lower().endswith(EXTENSOES)
 
 
 def _arquivo_compactado_invalido(erro: Exception) -> ArquivoInvalido:
@@ -112,16 +108,4 @@ def ler_csv(
         raise ArquivoInvalido(f"Erro ao ler o CSV: {erro}") from erro
     except ERROS_DE_COMPACTACAO as erro:
         raise _arquivo_compactado_invalido(erro) from erro
-    # Números antes de datas: assim "2026" ou "15" nunca são confundidos com datas.
-    df = converter_numeros(df, convencao_preferida(separador))
-    return normalizar_tipos(converter_datas(df)), separador, encoding
-
-
-def normalizar_tipos(df: pd.DataFrame) -> pd.DataFrame:
-    """Garante tipos que o Parquet aceita: colunas 'object' com tipos misturados viram texto."""
-    df = df.copy()
-    df.columns = [str(c) for c in df.columns]
-    for coluna in df.columns:
-        if df[coluna].dtype == object:
-            df[coluna] = df[coluna].astype("string")
-    return df
+    return tratar_tipos(df, convencao_preferida(separador)), separador, encoding

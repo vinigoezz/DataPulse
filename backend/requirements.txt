@@ -6,3 +6,4 @@ pyarrow==26.0.1
 python-dotenv==1.2.4
 psycopg[binary]==3.3.9
 boto3==1.44.9
+python-calamine==0.10.0

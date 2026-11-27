@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import IO
 
 from app.features.datasets.errors import ArquivoInvalido, ArquivoMuitoGrande
-from app.features.datasets.importar import leitura_csv
+from app.features.datasets.importar import leitura
 from app.features.datasets.models import Dataset, DatasetMeta
 from app.features.datasets.repository import DatasetRepository
 
@@ -30,8 +30,10 @@ class PedidoDeImportacao:
 def importar_dataset(
     pedido: PedidoDeImportacao, repositorio: DatasetRepository, limite_mb: int
 ) -> Dataset:
-    if not leitura_csv.extensao_valida(pedido.nome_arquivo):
-        raise ArquivoInvalido("Formato não suportado. Envie um arquivo .csv, .zip ou .gz.")
+    if not leitura.extensao_valida(pedido.nome_arquivo):
+        raise ArquivoInvalido(
+            f"Formato não suportado. Envie um arquivo {leitura.FORMATOS_ACEITOS}."
+        )
 
     dataset_id = _novo_id()
     # Pasta temporária do sistema: existe em qualquer hospedagem e some sozinha no fim.
@@ -40,7 +42,7 @@ def importar_dataset(
         tamanho = _copiar_com_limite(pedido.arquivo, temporario, limite_mb)
         if tamanho == 0:
             raise ArquivoInvalido("O arquivo está vazio.")
-        dados, separador, encoding = leitura_csv.ler_csv(
+        dados, separador, encoding = leitura.ler_planilha(
             temporario, pedido.nome_arquivo, pedido.separador, pedido.encoding
         )
 

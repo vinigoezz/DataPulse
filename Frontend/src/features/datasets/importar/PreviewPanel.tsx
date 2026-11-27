@@ -2,7 +2,7 @@ import { AlertTriangle, Check, FileArchive, FileSpreadsheet } from "lucide-react
 import type { ReactNode } from "react";
 import { Panel } from "@/components/layout/PageHeader";
 import { formatBytes, formatNumber } from "@/lib/format";
-import { previewIssues, type CsvPreview } from "./preview";
+import { fileKind, previewIssues, type CsvPreview } from "./preview";
 
 /** Resumo do arquivo escolhido e, para CSV, a prévia das primeiras linhas. */
 export function PreviewPanel({ file, preview }: { file: File; preview: CsvPreview | null }) {
@@ -26,13 +26,15 @@ export function PreviewPanel({ file, preview }: { file: File; preview: CsvPrevie
               <code className="font-mono">
                 {preview.delimiter === "\t" ? "tab" : preview.delimiter}
               </code>
+            ) : fileKind(file.name) === "excel" ? (
+              "não se aplica"
             ) : (
               "automático"
             )
           }
         />
       </div>
-      {preview ? <CsvPreviewDetails preview={preview} /> : <CompressedNotice />}
+      {preview ? <CsvPreviewDetails preview={preview} /> : <NoPreviewNotice name={file.name} />}
     </>
   );
 }
@@ -93,13 +95,19 @@ function CsvPreviewDetails({ preview }: { preview: CsvPreview }) {
   );
 }
 
-function CompressedNotice() {
+function NoPreviewNotice({ name }: { name: string }) {
+  const excel = fileKind(name) === "excel";
   return (
     <div className="flex items-start gap-2 rounded-xl border bg-muted/40 p-4 text-sm">
-      <FileArchive className="mt-0.5 size-4 text-primary" />
+      {excel ? (
+        <FileSpreadsheet className="mt-0.5 size-4 text-primary" />
+      ) : (
+        <FileArchive className="mt-0.5 size-4 text-primary" />
+      )}
       <p className="text-muted-foreground">
-        Arquivos compactados não têm prévia no navegador. A API descompacta, detecta o separador e
-        valida o CSV ao importar.
+        {excel
+          ? "Planilhas Excel não têm prévia no navegador. A API lê a primeira aba, ignora linhas e colunas em branco e reconhece números, datas, R$ e % ao importar."
+          : "Arquivos compactados não têm prévia no navegador. A API descompacta, detecta o separador e valida o CSV ao importar."}
       </p>
     </div>
   );

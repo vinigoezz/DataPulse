@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ACCEPTED_EXTENSIONS } from "./preview";
 
-const HINTS = ["Formatos: .csv, .zip ou .gz", "Delimitadores , ; | e tab", "Até 200 MB"];
+const HINTS = ["Formatos: .csv, .xlsx, .zip ou .gz", "No Excel, vale a primeira aba", "Até 200 MB"];
 
 export function DropZone({ onFile }: { onFile: (file: File) => void }) {
   const [dragging, setDragging] = useState(false);

@@ -13,6 +13,7 @@ Dá para mudar tudo: o que medir, como calcular, o período e a comparação.
 | 1 | [Agregação na API](01-agregacao-na-api.md) | A API aprendeu a calcular totais, médias e contagens: geral, por mês (ou dia, semana...) e por categoria. |
 | 2 | [A tela do Dashboard](02-tela-do-dashboard.md) | Cartões e gráficos que se montam sozinhos a partir das colunas do arquivo. |
 | 3 | [Aposentar o Streamlit](03-aposentar-streamlit.md) | O protótipo original saiu: o site novo já faz o que ele fazia (quase tudo). |
+| 4 | [Importar Excel](04-importar-excel.md) | A importação passou a aceitar planilhas `.xlsx`. |
 
 ## Como testar você mesmo
 
