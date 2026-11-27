@@ -8,9 +8,16 @@ Análise de dados a partir de planilhas CSV e Excel.
 | --- | --- |
 | `Frontend/` | Landing page e aplicação web (TanStack Start + React, conectado ao Lovable) |
 | `backend/` | API FastAPI: importação, armazenamento, linhas, estatísticas e agregações |
-| `docs/ARQUITETURA.md` | Arquitetura (vertical slices), hospedagem e contrato da API |
-| `docs/ROADMAP.md` | Sprints e o que falta |
-| `docs/sprints/` | Explicação, passo a passo, do que foi feito em cada sprint (`sprint-0/`, `sprint-1/`...) |
+| `docs/` | **Documentação**: comece por [`docs/README.md`](docs/README.md) |
+
+| Documento | Para quem |
+| --- | --- |
+| [Guia do usuário](docs/GUIA-DO-USUARIO.md) | Quem usa o site |
+| [Infraestrutura e operação](docs/INFRAESTRUTURA.md) | Quem publica, cuida das senhas e resolve problemas |
+| [Guia de desenvolvimento](docs/DESENVOLVIMENTO.md) | Quem programa no projeto |
+| [Arquitetura](docs/ARQUITETURA.md) | Organização do código e contrato da API |
+| [Roadmap](docs/ROADMAP.md) | O que foi feito e o que falta |
+| [`docs/sprints/`](docs/sprints/) | Cada passo de cada sprint, explicado para leigos |
 
 ## Como rodar
 

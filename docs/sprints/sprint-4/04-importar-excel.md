@@ -14,7 +14,9 @@ A tela **Importar** aceita `.xlsx`. A API:
 3. respeita o tipo de cada célula: números e datas do Excel já chegam como número e data;
 4. passa os **textos** pelas mesmas regras do CSV: `"R$ 1.250,00"`, `"12,5%"` e `"05/01/2026"`
    digitados como texto também são reconhecidos;
-5. mantém como texto um código digitado como texto (`00123`), sem transformá-lo em 123.
+5. mantém como texto um código digitado como texto (`00123`), sem transformá-lo em 123;
+6. entende colunas **misturadas**, comuns em planilhas feitas à mão: parte dos valores digitada
+   como texto (`R$ 1.250,00`, `06/01/2026`) e parte como número ou data de verdade.
 
 Planilhas Excel **não têm prévia** no navegador (o navegador não lê `.xlsx` sem uma biblioteca
 pesada). A tela avisa isso, e a API valida o arquivo ao importar.
@@ -40,6 +42,10 @@ pesada). A tela avisa isso, e a API valida o arquivo ao importar.
   - `importar/leitura_excel.py`: a leitura do Excel;
   - `importar/leitura.py`: escolhe CSV ou Excel pela extensão;
   - `importar/tipos.py`: o tratamento de números e datas, agora comum aos dois formatos.
-- **Testes:** `backend/tests/features/datasets/test_excel.py` monta uma planilha célula por
-  célula, com número, data, texto com R$, código com zeros, linha e coluna em branco e uma
-  segunda aba.
+- **Coluna misturada:** o teste em produção mostrou uma coluna "Valor" com `R$ 1.250,00` (texto)
+  e `300,5` (número) que ficava inteira como texto. Agora, nessas colunas, cada célula de número
+  vira texto no formato brasileiro (`300,5`) e cada data vira `05/01/2026` antes das regras de
+  conversão. Assim tudo é lido junto, do mesmo jeito.
+- **Testes:** `backend/tests/features/datasets/test_excel.py` monta planilhas célula por célula:
+  número, data, texto com R$, código com zeros, linha e coluna em branco, segunda aba e coluna
+  misturada.

@@ -75,3 +75,25 @@ def test_formato_antigo_xls_nao_e_aceito(client):
     resposta = enviar(client, "antigo.xls", b"qualquer coisa")
     assert resposta.status_code == 422
     assert ".xlsx" in resposta.json()["detail"]
+
+
+def test_coluna_com_numeros_e_textos_misturados(client, tmp_path):
+    """Comum em planilhas feitas à mão: parte digitada como texto, parte como número."""
+    livro = Workbook()
+    aba = livro.active
+    aba.append(["Data", "Valor"])
+    aba.append([datetime(2026, 1, 5), "R$ 1.250,00"])
+    aba.append(["06/01/2026", 300.5])
+    aba.append([datetime(2026, 1, 7), 20])
+    caminho = tmp_path / "misturado.xlsx"
+    livro.save(caminho)
+    criado = enviar(client, "misturado.xlsx", caminho.read_bytes()).json()
+
+    stats = {s["key"]: s for s in client.get(f"/api/datasets/{criado['id']}/stats").json()}
+    assert stats["Valor"]["type"] == "moeda"
+    assert (stats["Valor"]["min"], stats["Valor"]["max"]) == (20, 1250)
+    assert stats["Data"]["type"] == "data"
+    assert (stats["Data"]["start"], stats["Data"]["end"]) == (
+        "2026-01-05T00:00:00",
+        "2026-01-07T00:00:00",
+    )
