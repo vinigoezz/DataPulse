@@ -27,7 +27,7 @@ Cada passo concluído tem uma explicação em linguagem simples em `docs/sprints
 - [x] Estados de carregando, erro (com “tentar novamente”) e vazio nas três telas
 - [x] Testes: 26 na API, 21 no Frontend
 - [ ] Conferir as telas no navegador (`make dev`)
-- [ ] Commitar o Sprint 1
+- [x] Commitar o Sprint 1
 
 **Entrega:** importar um CSV e vê-lo de verdade em Datasets e no Explorador.
 
@@ -48,7 +48,7 @@ Regra do sprint: **nenhum código depende de um provedor específico** (ver `doc
 - [x] Preparar o deploy: `render.yaml`, migrações ao iniciar o container, CORS para as prévias da Vercel, `Frontend/vercel.json`
 - [x] Deploy da API no Render (container, plano grátis): https://datapulse-api-uqj2.onrender.com
 - [x] Deploy do Frontend na Vercel com `VITE_API_URL` apontando para a API: https://data-pulse-gamma.vercel.app
-- [ ] ~~Upload direto do navegador para o Storage~~: desnecessário com a API no Render (sem limite de 4,5 MB)
+- [x] ~~Upload direto do navegador para o Storage~~ (descartado): desnecessário com a API no Render (sem limite de 4,5 MB)
 - [x] Segredos só nas variáveis de ambiente das hospedagens, nunca no repositório (`make render-segredos`)
 
 - [x] Sem dados de exemplo: Visão Geral com números reais; Dashboard e Relatórios marcados "Em breve"; usuário e notificações fictícios removidos
